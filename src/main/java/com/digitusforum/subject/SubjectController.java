@@ -8,28 +8,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class ForestController {
+public class SubjectController {
 	@Autowired
-	ForestService forestService;
+	SubjectService subjectService;
 
-	@RequestMapping(value = "/forest/v1/create")
-	public SubjectEntity create(@RequestBody ForestVO forestVO) {
-		return forestService.create(forestVO);
+	@RequestMapping(value = "/subject/v1/create")
+	public SubjectVO create(@RequestBody SubjectVO subjectVO) {
+		return subjectService.create(subjectVO);
 	}
 
-	@RequestMapping(value = "/forest/v1/retrieve")
-	public List<SubjectEntity> retrieve() {
-		return forestService.retrieve();
+	@RequestMapping(value = "/subject/v1/retrieveByPerfilId")
+	public List<SubjectVO> retrieveByPerfilId(@RequestBody SubjectVO subjectVO) {
+		return subjectService.retrieveByPerfilId(subjectVO);
 	}
 
-	@RequestMapping(value = "/forest/v1/retrieveByPerfil")
-	public List<SubjectEntity> retrieveByPerfil(@RequestBody ForestVO forestVO) {
-		return forestService.retrieveByPerfil(forestVO);
-	}
-
-	@RequestMapping(value = "/forest/v1/retrieveById")
-	public SubjectEntity retrieveById(@RequestBody ForestVO forestVO) {
-		return forestService.retrieveById(forestVO);
+	@RequestMapping(value = "/subject/v1/retrieveByIdWithVideos")
+	public SubjectVO retrieveByIdWithVideos(@RequestBody SubjectVO subjectVO) {
+		return subjectService.retrieveByIdWithVideos(subjectVO);
 	}
 
 	/*

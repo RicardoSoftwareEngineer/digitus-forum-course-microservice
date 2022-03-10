@@ -1,6 +1,10 @@
 package com.digitusforum.course;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.modelmapper.ModelMapper;
@@ -9,14 +13,59 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.digitusforum.module.ModuleEntity;
+import com.digitusforum.module.ModuleRepository;
+import com.digitusforum.module.ModuleVO;
+import com.digitusforum.moduleVideo.ModuleVideoEntity;
+import com.digitusforum.moduleVideo.ModuleVideoRepository;
+import com.digitusforum.subject.SubjectEntity;
+import com.digitusforum.subject.SubjectRepository;
+import com.digitusforum.subject.SubjectVO;
 import com.digitusforum.util.RequestService;
+import com.digitusforum.video.VideoEntity;
+import com.digitusforum.video.VideoRepository;
+import com.digitusforum.video.VideoVO;
 
 @Service
 public class CourseService {
 
 	@Autowired
 	CourseRepository courseRepository;
+	@Autowired
+	ModuleRepository moduleRepository;
+	@Autowired
+	SubjectRepository subjectRepository;
+	@Autowired
+	VideoRepository videoRepository;
+	@Autowired
+	ModuleVideoRepository moduleVideoRepository;
 	RequestService requestService = new RequestService();
+
+	public List<ModuleVO> retrieveModulesWithVideosByCourseIdDEPRECATED(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
+
+		// List<ModuleEntity> modulesEntity =
+		// moduleRepository.findByCourseIdOrderByNumber(courseVO.getCourseId());
+		List<ModuleVO> modules = moduleRepository.findByCourseIdOrderByNumber(courseVO.getCourseId()).stream()
+				.map(module -> new ModelMapper().map(module, ModuleVO.class)).collect(Collectors.toList());
+		List<VideoVO> videos = moduleVideoRepository.findByCourseId(courseVO.getCourseId()).stream()
+				.map(video -> new ModelMapper().map(video, VideoVO.class)).collect(Collectors.toList());
+
+		for (VideoVO video : videos)
+			for (ModuleVO module : modules)
+				if (video.getModuleId().equals(module.getModuleId()))
+					module.getVideos().add(video);
+
+		return modules;
+	}
+
+	public List<ModuleVideoEntity> retrieveVideosByCourseId(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
+
+		return moduleVideoRepository.findByCourseId(courseVO.getCourseId());
+	}
 
 	public boolean checkIfThisCourseBelongToThisUser(String courseId, String userId) {
 		CourseEntity course = courseRepository.findByCourseIdAndDeletedIsFalse(courseId);
@@ -24,6 +73,13 @@ public class CourseService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND);
 		requestService.checkIfThisPerfilBelongsToThisUser(course.getPerfilId(), userId);
 		return true;
+	}
+
+	public List<ModuleEntity> retrieveModulesByCourseId(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
+
+		return moduleRepository.findByCourseIdOrderByNumber(courseVO.getCourseId());
 	}
 
 	public CourseEntity create(CourseVO courseVO) {
@@ -36,8 +92,8 @@ public class CourseService {
 
 		requestService.checkIfThisPerfilBelongsToThisUser(courseVO.getPerfilId(), courseVO.getUserId());
 
-		CourseEntity courseFromDB = courseRepository.findByUserIdAndPerfilIdAndNameAndDeletedIsFalse(courseVO.getUserId(),
-				courseVO.getPerfilId(), courseVO.getName());
+		CourseEntity courseFromDB = courseRepository.findByUserIdAndPerfilIdAndNameAndDeletedIsFalse(
+				courseVO.getUserId(), courseVO.getPerfilId(), courseVO.getName());
 		if (courseFromDB != null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_NAME_ALREADY_IN_USE);
 
@@ -63,7 +119,7 @@ public class CourseService {
 		if (StringUtils.isBlank(courseVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_USER_ID);
 		if (StringUtils.isBlank(courseVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_COURSE_ID);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
 		return courseRepository.findByCourseIdAndDeletedIsFalse(courseVO.getCourseId());
 	}
 
@@ -71,10 +127,43 @@ public class CourseService {
 		return courseRepository.findTop9ByDeletedIsFalse();
 	}
 
-	public String retrieveModulesByCourseId(CourseVO courseVO) {
+	public CourseVO delete(CourseVO courseVO) {
 		if (StringUtils.isBlank(courseVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_USER_ID);
-		return null;
+		if (StringUtils.isBlank(courseVO.getPerfilId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_PERFIL_ID);
+		if (StringUtils.isBlank(courseVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
+
+		requestService.checkIfThisPerfilBelongsToThisUser(courseVO.getPerfilId(), courseVO.getUserId());
+
+		CourseEntity courseFromDB = courseRepository.findByCourseIdAndDeletedIsFalse(courseVO.getCourseId());
+		if (courseFromDB == null)
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_NOT_FOUND);
+
+		courseRepository.deleteById(courseVO.getCourseId());
+		return courseVO;
+	}
+	
+	public CourseVO retrieveSubjectsByCourseId(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
+
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseId(courseVO.getCourseId());
+		List<VideoVO> videos = new ArrayList<>();
+		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
+			
+			//VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
+			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId())
+					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
+			SubjectEntity subjectEntitiy = subjectRepository.findBySubjectIdAndDeletedIsFalse(videoEntity.getSubjectId());
+			if(subjectEntitiy == null)
+				throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_NOT_FOUND);
+			SubjectVO subject = new ModelMapper().map(subjectEntitiy, SubjectVO.class);
+			if(!courseVO.getSubjects().contains(subject))
+				courseVO.getSubjects().add(subject);
+		}
+		return courseVO;
 	}
 
 	/*

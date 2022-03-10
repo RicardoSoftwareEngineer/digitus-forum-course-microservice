@@ -10,59 +10,75 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.digitusforum.util.RequestService;
+import com.digitusforum.video.VideoEntity;
+import com.digitusforum.video.VideoRepository;
+import com.digitusforum.video.VideoVO;
 
 @Service
-public class ForestService {
+public class SubjectService {
 
 	@Autowired
-	SubjectRepository forestRepository;
+	SubjectRepository subjectRepository;
+	@Autowired
+	VideoRepository videoRepository;
 	RequestService requestService = new RequestService();
-	
-	public boolean thisForestBelongToThisUser(String forestId, String userId) {
-		SubjectEntity forest = forestRepository.findBySubjectIdAndDeletedIsFalse(forestId);
-		if (forest == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.FOREST_NOT_FOUND);
-		requestService.checkIfThisPerfilBelongsToThisUser(forest.getPerfilId(), userId);
+
+	public boolean thisSubjectBelongToThisUser(String subjectId, String userId) {
+		SubjectEntity subject = subjectRepository.findBySubjectIdAndDeletedIsFalse(subjectId);
+		if (subject == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.SUBJECT_NOT_FOUND);
+		requestService.checkIfThisPerfilBelongsToThisUser(subject.getPerfilId(), userId);
 		return true;
 	}
 
-	public SubjectEntity create(ForestVO forestVO) {
+	public SubjectVO create(SubjectVO subjectVO) {
+		if (StringUtils.isBlank(subjectVO.getPerfilId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_PERFIL_ID);
+		if (StringUtils.isBlank(subjectVO.getName()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_NAME);
+
+		requestService.checkIfThisPerfilBelongsToThisUser(subjectVO.getPerfilId(), subjectVO.getUserId());
+
+		SubjectEntity subjectFromDB = subjectRepository.findByPerfilIdAndNameAndDeletedIsFalse(subjectVO.getPerfilId(),
+				subjectVO.getName());
+		if (subjectFromDB != null)
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_NAME_ALREADY_IN_USE);
+
+		SubjectEntity subjectEntity = new ModelMapper().map(subjectVO, SubjectEntity.class);
+		subjectEntity = subjectRepository.save(subjectEntity);
+		subjectVO = new ModelMapper().map(subjectEntity, SubjectVO.class);
+		return subjectVO;
+	}
+
+	public List<SubjectVO> retrieveByPerfilId(SubjectVO subjectVO) {
+		if (StringUtils.isBlank(subjectVO.getPerfilId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_PERFIL_ID);
+
+		List<SubjectEntity> subjectEntities = subjectRepository
+				.findByPerfilIdAndDeletedIsFalse(subjectVO.getPerfilId());
+		List<SubjectVO> subjects = new ModelMapper().map(subjectEntities, List.class);
+		return subjects;
+	}
+
+	public List<SubjectEntity> retrieveByPerfil(SubjectVO forestVO) {
 		if (StringUtils.isBlank(forestVO.getPerfilId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.FOREST_MISSING_PERFIL_ID);
-		if (StringUtils.isBlank(forestVO.getName()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.FOREST_MISSING_NAME);
-
-		requestService.checkIfThisPerfilBelongsToThisUser(forestVO.getPerfilId(), forestVO.getUserId());
-
-		SubjectEntity forestFromDB = forestRepository.findByPerfilIdAndNameAndDeletedIsFalse(forestVO.getPerfilId(),
-				forestVO.getName());
-		if (forestFromDB != null)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.FOREST_NAME_ALREADY_IN_USE);
-
-		SubjectEntity forestEntity = new ModelMapper().map(forestVO, SubjectEntity.class);
-		forestEntity = forestRepository.save(forestEntity);
-		return forestEntity;
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_PERFIL_ID);
+		return subjectRepository.findByPerfilIdAndDeletedIsFalse(forestVO.getPerfilId());
 	}
 
-	public List<SubjectEntity> retrieve() {
-		return forestRepository.findByDeletedIsFalse();
-	}
+	public SubjectVO retrieveByIdWithVideos(SubjectVO subjectVO) {
+		if (StringUtils.isBlank(subjectVO.getSubjectId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_ID);
 
-	public List<SubjectEntity> retrieveByPerfil(ForestVO forestVO) {
-		if (StringUtils.isBlank(forestVO.getPerfilId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.FOREST_MISSING_PERFIL_ID);
-		return forestRepository.findByPerfilIdAndDeletedIsFalse(forestVO.getPerfilId());
-	}
+		SubjectEntity subjectEntity = subjectRepository.findBySubjectIdAndDeletedIsFalse(subjectVO.getSubjectId());
+		if (subjectEntity == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.SUBJECT_NOT_FOUND);
 
-	public SubjectEntity retrieveById(ForestVO forestVO) {
-		if (StringUtils.isBlank(forestVO.getForestId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.FOREST_MISSING_ID);
-		
-		SubjectEntity forest = forestRepository.findBySubjectIdAndDeletedIsFalse(forestVO.getForestId());
-		if(forest == null)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.FOREST_NOT_FOUND);
-			
-		return forest;
+		subjectVO = new ModelMapper().map(subjectEntity, SubjectVO.class);
+		List<VideoEntity> videoEntities = videoRepository.findBySubjectIdAndDeletedIsFalse(subjectVO.getSubjectId());
+		List<VideoVO> videos = new ModelMapper().map(videoEntities, List.class);
+		subjectVO.setVideos(videos);
+		return subjectVO;
 	}
 
 	/*

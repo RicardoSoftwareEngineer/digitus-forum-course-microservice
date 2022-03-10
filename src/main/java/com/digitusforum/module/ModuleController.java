@@ -24,9 +24,39 @@ public class ModuleController {
 	 * List<ModuleEntity> retrieve(@RequestBody moduleVO moduleVO) { return
 	 * moduleService.retrieveByModule(moduleVO); }
 	 */
+	// TODO $$$ continuar criando o crud
+	@RequestMapping(value = "/module/v1/create")
+	public ModuleVO create(@RequestBody ModuleVO moduleVO) {
+		return moduleService.create(moduleVO);
+	}
+
+	@RequestMapping(value = "/module/v1/retrieveById")
+	public ModuleVO retrieveById(@RequestBody ModuleVO moduleVO) {
+		return moduleService.retrieveById(moduleVO);
+	}
+
+	@RequestMapping(value = "/module/v1/retrieveByCourseId")
+	public List<ModuleVO> retrieveByCourseId(@RequestBody ModuleVO moduleVO) {
+		return moduleService.retrieveByCourseId(moduleVO);
+	}
+
+	@RequestMapping(value = "/module/v1/retrieveByCourseIdWithVideos")
+	public List<ModuleVO> retrieveByCourseWithVideos(@RequestBody ModuleVO moduleVO) {
+		return moduleService.retrieveByCourseWithVideos(moduleVO);
+	}
+
+	@RequestMapping(value = "/module/v1/update")
+	public ModuleVO update(@RequestBody ModuleVO moduleVO) {
+		return moduleService.update(moduleVO);
+	}
+
+	@RequestMapping(value = "/module/v1/delete")
+	public ModuleVO delete(@RequestBody ModuleVO moduleVO) {
+		return moduleService.delete(moduleVO);
+	}
 
 	@RequestMapping(value = "/module/v1/addVideo")
-	public ModuleVideoEntity addVideo(@RequestBody ModuleVideoVO moduleVideoVO) {
+	public ModuleVideoVO addVideo(@RequestBody ModuleVideoVO moduleVideoVO) {
 		return moduleVideoService.addVideoToModule(moduleVideoVO);
 	}
 
@@ -38,28 +68,6 @@ public class ModuleController {
 	@RequestMapping(value = "/module/v1/removeVideo")
 	public ModuleVideoVO removeVideoFromModule(@RequestBody ModuleVideoVO moduleVideoVO) {
 		return moduleVideoService.removeVideoFromModule(moduleVideoVO);
-	}
-
-	@RequestMapping(value = "/module/v1/create")
-	public ModuleEntity create(@RequestBody moduleVO moduleVO) {
-		return moduleService.create(moduleVO);
-	}
-
-	@RequestMapping(value = "/module/v1/delete")
-	public moduleVO delete(@RequestBody moduleVO moduleVO) {
-		return moduleService.delete(moduleVO);
-	}
-
-	// TODO trazer info da triha como nome, descricao etc
-	@RequestMapping(value = "/module/v1/retrieveInfo}")
-	public String retrieveById(@RequestBody moduleVO moduleVO) {
-		return null;// trailService.retrieve();
-	}
-
-	// TODO trazer lista de videos do module
-	@RequestMapping(value = "/module/v1/retrieveVideos")
-	public List<VideoEntity> retrieveVideos(@RequestBody moduleVO moduleVO) {
-		return moduleVideoService.retrieveVideos(moduleVO);
 	}
 
 	/*

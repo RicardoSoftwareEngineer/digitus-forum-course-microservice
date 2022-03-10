@@ -1,35 +1,28 @@
 package com.digitusforum.moduleVideo;
 
 public class ModuleVideoVO {
-	private String kmTreeId;
+	private String moduleVideoId;
 	private String userId;
-	private String kmId;
-	private String treeId;
+	private String moduleId;
+	private String videoId;
+	private String courseId;
 	private int position;
 	private int newPosition;
 
-	public String getKmTreeId() {
-		return kmTreeId;
+	public String getCourseId() {
+		return courseId;
 	}
 
-	public void setKmTreeId(String kmTreeId) {
-		this.kmTreeId = kmTreeId;
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
 	}
 
-	public int getNewPosition() {
-		return newPosition;
+	public String getModuleVideoId() {
+		return moduleVideoId;
 	}
 
-	public void setNewPosition(int newPosition) {
-		this.newPosition = newPosition;
-	}
-
-	public int getPosition() {
-		return position;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
+	public void setModuleVideoId(String moduleVideoId) {
+		this.moduleVideoId = moduleVideoId;
 	}
 
 	public String getUserId() {
@@ -40,20 +33,36 @@ public class ModuleVideoVO {
 		this.userId = userId;
 	}
 
-	public String getKmId() {
-		return kmId;
+	public String getModuleId() {
+		return moduleId;
 	}
 
-	public void setKmId(String kmId) {
-		this.kmId = kmId;
+	public void setModuleId(String moduleId) {
+		this.moduleId = moduleId;
 	}
 
-	public String getTreeId() {
-		return treeId;
+	public String getVideoId() {
+		return videoId;
 	}
 
-	public void setTreeId(String treeId) {
-		this.treeId = treeId;
+	public void setVideoId(String videoId) {
+		this.videoId = videoId;
+	}
+
+	public int getPosition() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
+	public int getNewPosition() {
+		return newPosition;
+	}
+
+	public void setNewPosition(int newPosition) {
+		this.newPosition = newPosition;
 	}
 
 }

@@ -16,7 +16,16 @@ public class ModuleVideoEntity {
 	private String moduleVideoId;
 	private String moduleId;
 	private String videoId;
+	private String courseId;
 	private int position;
+
+	public String getCourseId() {
+		return courseId;
+	}
+
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
 
 	public String getModuleVideoId() {
 		return moduleVideoId;

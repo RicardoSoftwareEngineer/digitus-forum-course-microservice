@@ -16,22 +16,136 @@ import com.digitusforum.course.CourseRepository;
 import com.digitusforum.course.CourseService;
 import com.digitusforum.moduleVideo.ModuleVideoEntity;
 import com.digitusforum.moduleVideo.ModuleVideoRepository;
+import com.digitusforum.moduleVideo.ModuleVideoVO;
+import com.digitusforum.subject.SubjectEntity;
+import com.digitusforum.subject.SubjectRepository;
+import com.digitusforum.subject.SubjectVO;
 import com.digitusforum.util.RequestService;
+import com.digitusforum.video.VideoEntity;
+import com.digitusforum.video.VideoRepository;
+import com.digitusforum.video.VideoVO;
 
 @Service
 public class ModuleService {
 
 	@Autowired
+	SubjectRepository subjectRepository;
+	@Autowired
+	VideoRepository videoRepository;
+	@Autowired
 	ModuleRepository moduleRepository;
 	@Autowired
-	ModuleVideoRepository kmTreeRepository;
+	ModuleVideoRepository moduleVideoRepository;
 	@Autowired
 	CourseRepository courseRepository;
 	@Autowired
 	CourseService courseService;
 	RequestService requestService = new RequestService();
 
-	public List<ModuleEntity> reorder(moduleVO moduleVO) {
+	public ModuleVO create(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getUserId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
+		if (StringUtils.isBlank(moduleVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(moduleVO.getName()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_NAME);
+
+		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		moduleVO.setNumber(getLastModule(moduleVO));
+		ModuleEntity moduleEntity = new ModelMapper().map(moduleVO, ModuleEntity.class);
+		moduleEntity = moduleRepository.save(moduleEntity);
+		moduleVO = new ModelMapper().map(moduleEntity, ModuleVO.class);
+		return moduleVO;
+	}
+
+	public ModuleVO retrieveById(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
+		ModuleEntity moduleEntity = moduleRepository.findById(moduleVO.getModuleId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
+		moduleVO = new ModelMapper().map(moduleEntity, ModuleVO.class);
+		return moduleVO;
+	}
+
+	public List<ModuleVO> retrieveByCourseId(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+
+		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleVO> modules = new ModelMapper().map(moduleEntities, List.class);
+		return modules;
+	}
+
+	public List<ModuleVO> retrieveByCourseWithVideos(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+
+		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleVO> modules = new ArrayList<>();
+		for (ModuleEntity moduleEntity : moduleEntities)
+			modules.add(new ModelMapper().map(moduleEntity, ModuleVO.class));
+
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseId(moduleVO.getCourseId());
+		List<VideoVO> videos = new ArrayList<>();
+		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
+			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
+			VideoVO video = new ModelMapper().map(videoEntity, VideoVO.class);
+			video.setModuleId(moduleVideoEntity.getModuleId());
+			videos.add(video);
+		}
+
+		for (VideoVO video : videos)
+			for (ModuleVO module : modules)
+				if (video.getModuleId().equals(module.getModuleId()))
+					module.getVideos().add(video);
+
+		return modules;
+	}
+
+	public ModuleVO update(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
+
+		ModuleEntity moduleEntity = moduleRepository.findById(moduleVO.getModuleId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
+
+		if (StringUtils.isNotBlank(moduleVO.getName()))
+			moduleEntity.setName(moduleVO.getName());
+		if (StringUtils.isNotBlank(moduleVO.getSinopse()))
+			moduleEntity.setSinopse(moduleVO.getSinopse());
+		if (StringUtils.isNotBlank(moduleVO.getDescription()))
+			moduleEntity.setDescription(moduleVO.getDescription());
+		moduleRepository.save(moduleEntity);
+		moduleVO = new ModelMapper().map(moduleEntity, ModuleVO.class);
+		return moduleVO;
+	}
+
+	public ModuleVO delete(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getUserId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
+		if (StringUtils.isBlank(moduleVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
+		if (StringUtils.isBlank(moduleVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+
+		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+
+		moduleRepository.findById(moduleVO.getModuleId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
+
+		/*
+		 * List<ModuleVideoEntity> moduleVideos =
+		 * moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVO.getModuleId()
+		 * ); for (ModuleVideoEntity video : moduleVideos)
+		 * moduleVideoRepository.deleteById(video.getModuleId());
+		 */
+		moduleVideoRepository.deleteByModuleId(moduleVO.getModuleId());
+		moduleRepository.deleteById(moduleVO.getModuleId());
+		fixNumbers(moduleVO);
+		return moduleVO;
+	}
+
+	public List<ModuleEntity> reorder(ModuleVO moduleVO) {
 		if (StringUtils.isBlank(moduleVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
 		if (StringUtils.isBlank(moduleVO.getCourseId()))
@@ -44,14 +158,14 @@ public class ModuleService {
 		checkIfThisModuleBelongToThisUser(moduleVO.getModuleId(), moduleVO.getUserId());
 		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
 
-		Optional<ModuleEntity> kmEntity = moduleRepository.findById(moduleVO.getModuleId());
-		if (kmEntity.isEmpty())
+		Optional<ModuleEntity> moduleEntity = moduleRepository.findById(moduleVO.getModuleId());
+		if (moduleEntity.isEmpty())
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_NOT_FOUND);
-		kmEntity.get().setNumber(moduleVO.getNewNumber());
-		moduleRepository.save(kmEntity.get());
+		moduleEntity.get().setNumber(moduleVO.getNewNumber());
+		moduleRepository.save(moduleEntity.get());
 		fixNumbers(moduleVO);
-		List<ModuleEntity> kms = new ArrayList<>(); //retrieveByModule(moduleVO);
-		return kms;
+		List<ModuleEntity> moduleEntities = new ArrayList<>(); // retrieveByModule(moduleVO);
+		return moduleEntities;
 	}
 
 	public void checkIfThisModuleBelongToThisUser(String moduleId, String userId) {
@@ -62,29 +176,7 @@ public class ModuleService {
 		requestService.checkIfThisPerfilBelongsToThisUser(courseEntity.get().getPerfilId(), userId);
 	}
 
-	public moduleVO delete(moduleVO kmVO) {
-		if (StringUtils.isBlank(kmVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
-		if (StringUtils.isBlank(kmVO.getModuleId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
-		if (StringUtils.isBlank(kmVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
-
-		courseService.checkIfThisCourseBelongToThisUser(kmVO.getCourseId(), kmVO.getUserId());
-
-		moduleRepository.findById(kmVO.getModuleId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
-
-		List<ModuleVideoEntity> kmTrees = kmTreeRepository.findByModuleIdOrderByPositionAsc(kmVO.getModuleId());
-		for (ModuleVideoEntity tree : kmTrees)
-			kmTreeRepository.deleteById(tree.getModuleId());
-
-		moduleRepository.deleteById(kmVO.getModuleId());
-		fixNumbers(kmVO);
-		return kmVO;
-	}
-
-	private void fixNumbers(moduleVO moduleVO) {
+	private void fixNumbers(ModuleVO moduleVO) {
 		List<ModuleEntity> modules = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
 		for (int i = 0; i < modules.size(); i++) {
 			if (modules.get(i).getNumber() != i + 1) {
@@ -94,27 +186,11 @@ public class ModuleService {
 		}
 	}
 
-	private int getLastModule(moduleVO moduleVO) {
+	private int getLastModule(ModuleVO moduleVO) {
 		List<ModuleEntity> modules = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
 		if (modules.size() == 0)
 			return 1;
 		return modules.get(modules.size() - 1).getNumber() + 1;
-	}
-
-	public ModuleEntity create(moduleVO kmVO) {
-		if (StringUtils.isBlank(kmVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
-		if (StringUtils.isBlank(kmVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
-		if (StringUtils.isBlank(kmVO.getName()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_NAME);
-
-		courseService.checkIfThisCourseBelongToThisUser(kmVO.getCourseId(), kmVO.getUserId());
-
-		kmVO.setNumber(getLastModule(kmVO));
-		ModuleEntity kmEntity = new ModelMapper().map(kmVO, ModuleEntity.class);
-		kmEntity = moduleRepository.save(kmEntity);
-		return kmEntity;
 	}
 
 	/*
@@ -133,13 +209,6 @@ public class ModuleService {
 	private void checkModuleId(String moduleId) {
 		if (StringUtils.isBlank(moduleId))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
-	}
-
-	public ModuleEntity retrieveById(moduleVO kmVO) {
-		if (StringUtils.isBlank(kmVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
-		return moduleRepository.findById(kmVO.getModuleId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
 	}
 
 	/*

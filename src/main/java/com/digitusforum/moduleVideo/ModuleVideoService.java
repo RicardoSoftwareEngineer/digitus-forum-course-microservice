@@ -13,11 +13,11 @@ import com.digitusforum.course.CourseRepository;
 import com.digitusforum.course.CourseService;
 import com.digitusforum.module.ModuleRepository;
 import com.digitusforum.module.ModuleService;
-import com.digitusforum.module.moduleVO;
+import com.digitusforum.module.ModuleVO;
 import com.digitusforum.subject.SubjectRepository;
 import com.digitusforum.util.RequestService;
 import com.digitusforum.video.VideoRepository;
-import com.digitusforum.video.TreeService;
+import com.digitusforum.video.VideoService;
 import com.digitusforum.video.VideoEntity;
 
 @Service
@@ -38,10 +38,10 @@ public class ModuleVideoService {
 	@Autowired
 	ModuleService moduleService;
 	@Autowired
-	TreeService treeService;
+	VideoService videoService;
 	RequestService requestService = new RequestService();
 	
-	public List<VideoEntity> retrieveVideos(moduleVO moduleVO){
+	public List<ModuleVO> retrieveModulesWithVideos(ModuleVO moduleVO){
 		
 		
 		return null;
@@ -49,82 +49,87 @@ public class ModuleVideoService {
 
 	public List<ModuleVideoEntity> reorder(ModuleVideoVO moduleVideoVO) {
 		if (StringUtils.isBlank(moduleVideoVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_USER_ID);
-		if (StringUtils.isBlank(moduleVideoVO.getTreeId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_TREE_ID);
-		if (StringUtils.isBlank(moduleVideoVO.getKmId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_KM_ID);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_USER_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getVideoId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_VIDEO_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
 		if (moduleVideoVO.getNewPosition() == 0)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_NEW_POSITION);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_NEW_POSITION);
 
-		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getKmId(), moduleVideoVO.getUserId());
-		treeService.checkIfThisTreeBelongToThisUser(moduleVideoVO.getTreeId(), moduleVideoVO.getUserId());
+		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
-		ModuleVideoEntity kmTreeEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getKmId(), moduleVideoVO.getTreeId());
-		if (kmTreeEntity == null)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.TREE_NOT_FOUND_IN_KM);
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
+		if (moduleVideoEntity == null)
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_NOT_FOUND_IN_MODULE);
 
-		kmTreeEntity.setPosition(moduleVideoVO.getNewPosition());
+		moduleVideoEntity.setPosition(moduleVideoVO.getNewPosition());
 		fixPositions(moduleVideoVO);
-		return moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getKmId());
+		return moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
 	}
 
-	private void fixPositions(ModuleVideoVO kmTreeVO) {
-		List<ModuleVideoEntity> trees = moduleVideoRepository.findByModuleIdOrderByPositionAsc(kmTreeVO.getKmId());
-		for (int i = 1; i <= trees.size(); i++) {
-			if (trees.get(i).getPosition() != i) {
-				trees.get(i).setPosition(i);
-				moduleVideoRepository.save(trees.get(i));
+	private void fixPositions(ModuleVideoVO moduleVideoVO) {
+		List<ModuleVideoEntity> videos = moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
+		for (int i = 0; i < videos.size(); i++) {
+			if (videos.get(i).getPosition() != i) {
+				videos.get(i).setPosition(i);
+				moduleVideoRepository.save(videos.get(i));
 			}
 		}
 	}
 
-	public ModuleVideoVO removeVideoFromModule(ModuleVideoVO kmTreeVO) {
-		if (StringUtils.isBlank(kmTreeVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_USER_ID);
-		if (StringUtils.isBlank(kmTreeVO.getTreeId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_TREE_ID);
-		if (StringUtils.isBlank(kmTreeVO.getKmId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_KM_ID);
+	public ModuleVideoVO removeVideoFromModule(ModuleVideoVO moduleVideoVO) {
+		if (StringUtils.isBlank(moduleVideoVO.getUserId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_USER_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getVideoId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_VIDEO_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
 
-		moduleService.checkIfThisModuleBelongToThisUser(kmTreeVO.getKmId(), kmTreeVO.getUserId());
-		treeService.checkIfThisTreeBelongToThisUser(kmTreeVO.getTreeId(), kmTreeVO.getUserId());
+		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
-		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(kmTreeVO.getKmId(), kmTreeVO.getTreeId());
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
 		if (moduleVideoEntity == null)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.TREE_NOT_FOUND_IN_KM);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_NOT_FOUND_IN_MODULE);
 
 		moduleVideoRepository.deleteById(moduleVideoEntity.getModuleVideoId());
-		fixPositions(kmTreeVO);
-		return kmTreeVO;
+		fixPositions(moduleVideoVO);
+		return moduleVideoVO;
 	}
 
-	public ModuleVideoEntity addVideoToModule(ModuleVideoVO kmTreeVO) {
-		if (StringUtils.isBlank(kmTreeVO.getUserId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_USER_ID);
-		if (StringUtils.isBlank(kmTreeVO.getTreeId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_TREE_ID);
-		if (StringUtils.isBlank(kmTreeVO.getKmId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.KM_TREE_MISSING_KM_ID);
+	public ModuleVideoVO addVideoToModule(ModuleVideoVO moduleVideoVO) {
+		if (StringUtils.isBlank(moduleVideoVO.getUserId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_USER_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getVideoId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_VIDEO_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getCourseId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
 
-		moduleService.checkIfThisModuleBelongToThisUser(kmTreeVO.getKmId(), kmTreeVO.getUserId());
-		treeService.checkIfThisTreeBelongToThisUser(kmTreeVO.getTreeId(), kmTreeVO.getUserId());
+		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
+		//TODO $$$ checkIfThisModuleBelongsToThisCourse
 
-		ModuleVideoEntity kmTreeEntity = moduleVideoRepository.findByModuleIdAndVideoId(kmTreeVO.getKmId(), kmTreeVO.getTreeId());
-		if (kmTreeEntity != null)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.TREE_ALREADY_IN_KM);
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
+		if (moduleVideoEntity != null)
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_ALREADY_IN_MODULE);
 
-		kmTreeVO.setPosition(getLastPosition(kmTreeVO));
-		kmTreeVO.setUserId(null);
-		kmTreeEntity = new ModelMapper().map(kmTreeVO, ModuleVideoEntity.class);
-		return moduleVideoRepository.save(kmTreeEntity);
+		moduleVideoVO.setPosition(getLastPosition(moduleVideoVO));
+		moduleVideoVO.setUserId(null);
+		moduleVideoEntity = new ModelMapper().map(moduleVideoVO, ModuleVideoEntity.class);
+		moduleVideoEntity = moduleVideoRepository.save(moduleVideoEntity);
+		moduleVideoVO = new ModelMapper().map(moduleVideoEntity, ModuleVideoVO.class);
+		return moduleVideoVO;
 	}
 
-	private int getLastPosition(ModuleVideoVO kmTreeVO) {
-		List<ModuleVideoEntity> trees = moduleVideoRepository.findByModuleIdOrderByPositionAsc(kmTreeVO.getKmId());
-		if (trees.size() == 0)
+	private int getLastPosition(ModuleVideoVO moduleVideoVO) {
+		List<ModuleVideoEntity> videos = moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
+		if (videos.size() == 0)
 			return 1;
-		return trees.get(trees.size() - 1).getPosition();
+		return videos.get(videos.size() - 1).getPosition();
 	}
 
 	/*
