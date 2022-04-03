@@ -26,6 +26,11 @@ public class SubjectController {
 	public SubjectVO retrieveByIdWithVideos(@RequestBody SubjectVO subjectVO) {
 		return subjectService.retrieveByIdWithVideos(subjectVO);
 	}
+	
+	@RequestMapping(value = "/subject/v1/update")
+	public SubjectVO update(@RequestBody SubjectVO subjectVO) {
+		return subjectService.update(subjectVO);
+	}
 
 	/*
 	 * @RequestMapping(value = "/user/v1/{id}/retrieve") public Object
