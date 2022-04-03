@@ -80,6 +80,25 @@ public class SubjectService {
 		subjectVO.setVideos(videos);
 		return subjectVO;
 	}
+	
+	public SubjectVO update(SubjectVO subjectVO) {
+		if (StringUtils.isBlank(subjectVO.getSubjectId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_ID);
+		
+		SubjectEntity subjectEntity = subjectRepository.findById(subjectVO.getSubjectId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.SUBJECT_NOT_FOUND));
+		
+		if (StringUtils.isNotBlank(subjectVO.getName()))
+			subjectEntity.setName(subjectVO.getName());
+		if (StringUtils.isNotBlank(subjectVO.getSinopse()))
+			subjectEntity.setSinopse(subjectVO.getSinopse());
+		if (StringUtils.isNotBlank(subjectVO.getDescription()))
+			subjectEntity.setDescription(subjectVO.getDescription());
+		
+		subjectRepository.save(subjectEntity);
+		subjectVO = new ModelMapper().map(subjectEntity, SubjectVO.class);
+		return subjectVO;
+	}
 
 	/*
 	 * public TrailEntity retrieveById(String id) { Optional<TrailEntity> user =

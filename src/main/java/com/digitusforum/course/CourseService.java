@@ -49,7 +49,7 @@ public class CourseService {
 		// moduleRepository.findByCourseIdOrderByNumber(courseVO.getCourseId());
 		List<ModuleVO> modules = moduleRepository.findByCourseIdOrderByNumber(courseVO.getCourseId()).stream()
 				.map(module -> new ModelMapper().map(module, ModuleVO.class)).collect(Collectors.toList());
-		List<VideoVO> videos = moduleVideoRepository.findByCourseId(courseVO.getCourseId()).stream()
+		List<VideoVO> videos = moduleVideoRepository.findByCourseIdOrderByPositionAsc(courseVO.getCourseId()).stream()
 				.map(video -> new ModelMapper().map(video, VideoVO.class)).collect(Collectors.toList());
 
 		for (VideoVO video : videos)
@@ -64,7 +64,7 @@ public class CourseService {
 		if (StringUtils.isBlank(courseVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
 
-		return moduleVideoRepository.findByCourseId(courseVO.getCourseId());
+		return moduleVideoRepository.findByCourseIdOrderByPositionAsc(courseVO.getCourseId());
 	}
 
 	public boolean checkIfThisCourseBelongToThisUser(String courseId, String userId) {
@@ -149,7 +149,7 @@ public class CourseService {
 		if (StringUtils.isBlank(courseVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
 
-		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseId(courseVO.getCourseId());
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseIdOrderByPositionAsc(courseVO.getCourseId());
 		List<VideoVO> videos = new ArrayList<>();
 		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
 			

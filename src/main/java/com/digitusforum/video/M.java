@@ -2,6 +2,7 @@ package com.digitusforum.video;
 //class name shortened from InternationalizedMessagesKey to M for verbosity reasons
 public class M {
 	public static String VIDEO_NOT_FOUND = "video.not_found";
+	public static String MODULE_NOT_FOUND = "module.not_found";
 	public static String VIDEO_MISSING_SUBJECT_ID = "video.missing.subject_id";
 	public static String VIDEO_MISSING_USER_ID = "video.missing.user_id";
 	public static String VIDEO_MISSING_ID = "video.missing.id";

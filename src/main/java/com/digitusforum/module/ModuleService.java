@@ -14,6 +14,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.digitusforum.course.CourseEntity;
 import com.digitusforum.course.CourseRepository;
 import com.digitusforum.course.CourseService;
+import com.digitusforum.link.LinkEntity;
+import com.digitusforum.link.LinkRepository;
+import com.digitusforum.link.LinkVO;
 import com.digitusforum.moduleVideo.ModuleVideoEntity;
 import com.digitusforum.moduleVideo.ModuleVideoRepository;
 import com.digitusforum.moduleVideo.ModuleVideoVO;
@@ -38,6 +41,8 @@ public class ModuleService {
 	ModuleVideoRepository moduleVideoRepository;
 	@Autowired
 	CourseRepository courseRepository;
+	@Autowired
+	LinkRepository linkRepository;
 	@Autowired
 	CourseService courseService;
 	RequestService requestService = new RequestService();
@@ -85,12 +90,16 @@ public class ModuleService {
 		for (ModuleEntity moduleEntity : moduleEntities)
 			modules.add(new ModelMapper().map(moduleEntity, ModuleVO.class));
 
-		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseId(moduleVO.getCourseId());
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseIdOrderByPositionAsc(moduleVO.getCourseId());
 		List<VideoVO> videos = new ArrayList<>();
 		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
 			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
 			VideoVO video = new ModelMapper().map(videoEntity, VideoVO.class);
 			video.setModuleId(moduleVideoEntity.getModuleId());
+			video.setModuleVideoId(moduleVideoEntity.getModuleVideoId());
+			List<LinkEntity> linkEntities = linkRepository.findByModuleVideoId(moduleVideoEntity.getModuleVideoId());
+			List<LinkVO> links = new ModelMapper().map(linkEntities, List.class);
+			video.setLinks(links);
 			videos.add(video);
 		}
 

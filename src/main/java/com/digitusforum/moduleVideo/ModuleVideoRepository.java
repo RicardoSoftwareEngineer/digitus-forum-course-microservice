@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface ModuleVideoRepository extends CrudRepository<ModuleVideoEntity, String> {
 	List<ModuleVideoEntity> findByModuleIdOrderByPositionAsc(String moduleId);
-	List<ModuleVideoEntity> findByCourseId(String courseId);
+	List<ModuleVideoEntity> findByCourseIdOrderByPositionAsc(String courseId);
 	List<ModuleVideoEntity> findByVideoId(String videoId);
 	ModuleVideoEntity findByModuleIdAndVideoId(String moduleId, String videoId);
 	void deleteById(String id);
