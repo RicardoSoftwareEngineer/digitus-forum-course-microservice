@@ -21,6 +21,7 @@ import com.digitusforum.subject.SubjectEntity;
 import com.digitusforum.subject.SubjectRepository;
 import com.digitusforum.subject.SubjectService;
 import com.digitusforum.util.RequestService;
+import com.digitusforum.video.VideoRepository;
 
 @Service
 public class LinkService {
@@ -34,6 +35,8 @@ public class LinkService {
 	@Autowired
 	ModuleVideoRepository moduleVideoRepository;
 	@Autowired
+	VideoRepository videoRepository;
+	@Autowired
 	SubjectService subjectService;
 	RequestService requestService = new RequestService();
 
@@ -42,15 +45,15 @@ public class LinkService {
 	}
 
 	public LinkVO create(LinkVO linkVO) {
-		if (StringUtils.isBlank(linkVO.getModuleVideoId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_VIDEO_MODULE_ID);
+		if (StringUtils.isBlank(linkVO.getVideoId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_VIDEO_ID);
 		if (StringUtils.isBlank(linkVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_NAME);
 		if (StringUtils.isBlank(linkVO.getUrl()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_URL);
 
-		moduleVideoRepository.findById(linkVO.getModuleVideoId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_VIDEO_NOT_FOUND));
+		videoRepository.findById(linkVO.getVideoId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
 
 		// subjectService.thisSubjectBelongToThisUser(linkVO.getLinkId(),
 		// linkVO.getUserId());
@@ -61,14 +64,14 @@ public class LinkService {
 		return linkVO;
 	}
 
-	public List<LinkVO> retrieveByModuleVideoId(LinkVO linkVO) {
-		if (StringUtils.isBlank(linkVO.getModuleVideoId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_VIDEO_MODULE_ID);
+	public List<LinkVO> retrieveByVideoId(LinkVO linkVO) {
+		if (StringUtils.isBlank(linkVO.getVideoId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.LINK_MISSING_VIDEO_ID);
 
-		moduleVideoRepository.findById(linkVO.getModuleVideoId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_VIDEO_NOT_FOUND));
+		videoRepository.findById(linkVO.getVideoId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
 
-		List<LinkEntity> linkEntities = linkRepository.findByModuleVideoId(linkVO.getModuleVideoId());
+		List<LinkEntity> linkEntities = linkRepository.findByVideoId(linkVO.getVideoId());
 		List<LinkVO> links = new ModelMapper().map(linkEntities, List.class);
 		return links;
 	}

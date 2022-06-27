@@ -14,7 +14,7 @@ public class LinkEntity {
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	private String linkId;
-	private String moduleVideoId;
+	private String videoId;
 	private String name;
 	private String url;
 	private int position;
@@ -27,12 +27,14 @@ public class LinkEntity {
 		this.linkId = linkId;
 	}
 
-	public String getModuleVideoId() {
-		return moduleVideoId;
+	
+
+	public String getVideoId() {
+		return videoId;
 	}
 
-	public void setModuleVideoId(String moduleVideoId) {
-		this.moduleVideoId = moduleVideoId;
+	public void setVideoId(String videoId) {
+		this.videoId = videoId;
 	}
 
 	public String getName() {

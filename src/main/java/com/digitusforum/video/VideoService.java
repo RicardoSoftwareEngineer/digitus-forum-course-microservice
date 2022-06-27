@@ -58,7 +58,7 @@ public class VideoService {
 		if (StringUtils.isBlank(videoVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_NAME);
 
-		subjectService.thisSubjectBelongToThisUser(videoVO.getSubjectId(), videoVO.getUserId());
+		//subjectService.thisSubjectBelongToThisUser(videoVO.getSubjectId(), videoVO.getUserId());
 
 		VideoEntity videoEntity = new ModelMapper().map(videoVO, VideoEntity.class);
 		videoEntity = videoRepository.save(videoEntity);
@@ -84,9 +84,8 @@ public class VideoService {
 
 			videoVO.setModuleId(moduleId);
 			videoVO = getPreviousAndNextVideo(videoVO);
-			ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(videoVO.getModuleId(),
-					videoVO.getVideoId());
-			List<LinkEntity> linkEntities = linkRepository.findByModuleVideoId(moduleVideoEntity.getModuleVideoId());
+			//VideoEntity moduleVideoEntity = videoRepository.findById(videoVO.getVideoId());
+			List<LinkEntity> linkEntities = linkRepository.findByVideoId(videoVO.getVideoId());
 			List<LinkVO> links = new ModelMapper().map(linkEntities, List.class);
 			videoVO.setLinks(links);
 		}
@@ -188,6 +187,8 @@ public class VideoService {
 			videoEntity.setDescription(videoVO.getDescription());
 		if (StringUtils.isNotBlank(videoVO.getUrl()))
 			videoEntity.setUrl(videoVO.getUrl());
+		if (StringUtils.isNotBlank(videoVO.getSubjectId()))
+			videoEntity.setSubjectId(videoVO.getSubjectId()); //TODO check if this subject exists
 
 		videoRepository.save(videoEntity);
 		videoVO = new ModelMapper().map(videoEntity, VideoVO.class);
