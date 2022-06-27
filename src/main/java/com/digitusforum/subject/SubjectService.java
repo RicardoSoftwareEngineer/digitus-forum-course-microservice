@@ -37,7 +37,7 @@ public class SubjectService {
 		if (StringUtils.isBlank(subjectVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_NAME);
 
-		requestService.checkIfThisPerfilBelongsToThisUser(subjectVO.getPerfilId(), subjectVO.getUserId());
+		//requestService.checkIfThisPerfilBelongsToThisUser(subjectVO.getPerfilId(), subjectVO.getUserId());
 
 		SubjectEntity subjectFromDB = subjectRepository.findByPerfilIdAndNameAndDeletedIsFalse(subjectVO.getPerfilId(),
 				subjectVO.getName());

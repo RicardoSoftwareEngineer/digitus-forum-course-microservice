@@ -97,7 +97,7 @@ public class ModuleService {
 			VideoVO video = new ModelMapper().map(videoEntity, VideoVO.class);
 			video.setModuleId(moduleVideoEntity.getModuleId());
 			video.setModuleVideoId(moduleVideoEntity.getModuleVideoId());
-			List<LinkEntity> linkEntities = linkRepository.findByModuleVideoId(moduleVideoEntity.getModuleVideoId());
+			List<LinkEntity> linkEntities = linkRepository.findByVideoId(moduleVideoEntity.getModuleVideoId());
 			List<LinkVO> links = new ModelMapper().map(linkEntities, List.class);
 			video.setLinks(links);
 			videos.add(video);
@@ -137,7 +137,7 @@ public class ModuleService {
 		if (StringUtils.isBlank(moduleVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
 
-		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		//courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
 
 		moduleRepository.findById(moduleVO.getModuleId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));

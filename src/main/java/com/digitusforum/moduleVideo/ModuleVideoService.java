@@ -57,8 +57,8 @@ public class ModuleVideoService {
 		if (moduleVideoVO.getNewPosition() == 0)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_NEW_POSITION);
 
-		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
-		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
+		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
 		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
 		if (moduleVideoEntity == null)
@@ -87,8 +87,8 @@ public class ModuleVideoService {
 		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
 
-		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
-		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
+		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
 		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
 		if (moduleVideoEntity == null)
@@ -109,8 +109,8 @@ public class ModuleVideoService {
 		if (StringUtils.isBlank(moduleVideoVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
 
-		moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
-		videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
+		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
+		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		//TODO $$$ checkIfThisModuleBelongsToThisCourse
 
 		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());

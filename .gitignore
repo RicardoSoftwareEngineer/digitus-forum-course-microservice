@@ -8,7 +8,6 @@ target/
 mvn*
 logs*
 *.log
-/database
 
 ### STS ###
 .apt_generated

@@ -17,9 +17,9 @@ public class LinkController {
 		return linkService.create(linkVO);
 	}
 
-	@RequestMapping(value = "/link/v1/retrieveByModuleVideoId")
+	@RequestMapping(value = "/link/v1/retrieveByVideoId")
 	public List<LinkVO> retrieveById(@RequestBody LinkVO linkVO) {
-		return linkService.retrieveByModuleVideoId(linkVO);
+		return linkService.retrieveByVideoId(linkVO);
 	}
 
 	@RequestMapping(value = "/link/v1/update")
