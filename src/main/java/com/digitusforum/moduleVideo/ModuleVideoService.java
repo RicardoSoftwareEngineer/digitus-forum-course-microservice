@@ -54,23 +54,31 @@ public class ModuleVideoService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_VIDEO_ID);
 		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
-		if (moduleVideoVO.getNewPosition() == 0)
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_NEW_POSITION);
 
-		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
-		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
-
-		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		if (moduleVideoEntity == null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_NOT_FOUND_IN_MODULE);
-
+		
+		ModuleVideoEntity moduleVideoEntity2 = moduleVideoRepository.findByModuleIdAndPositionAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getNewPosition(), moduleVideoVO.getUserId());
+		if(moduleVideoEntity2 != null) {
+			addToTheTop(moduleVideoEntity2);
+		}
 		moduleVideoEntity.setPosition(moduleVideoVO.getNewPosition());
+		moduleVideoRepository.save(moduleVideoEntity);
 		fixPositions(moduleVideoVO);
-		return moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
+		return moduleVideoRepository.findByUserIdAndModuleIdOrderByPositionAsc(moduleVideoVO.getUserId(), moduleVideoVO.getModuleId());
+	}
+
+	private void addToTheTop(ModuleVideoEntity moduleVideoEntity2) {
+		List<ModuleVideoEntity> videos = moduleVideoRepository.findByModuleIdAndPositionGreaterThanEqualOrderByPositionAsc(moduleVideoEntity2.getModuleId(), moduleVideoEntity2.getPosition());
+		for (int i = 0; i < videos.size(); i++) {
+			videos.get(i).setPosition(videos.get(i).getPosition() + 1);
+			moduleVideoRepository.save(videos.get(i));
+		}
 	}
 
 	private void fixPositions(ModuleVideoVO moduleVideoVO) {
-		List<ModuleVideoEntity> videos = moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
+		List<ModuleVideoEntity> videos = moduleVideoRepository.findByUserIdAndModuleIdOrderByPositionAsc(moduleVideoVO.getUserId(), moduleVideoVO.getModuleId());
 		for (int i = 0; i < videos.size(); i++) {
 			if (videos.get(i).getPosition() != i) {
 				videos.get(i).setPosition(i);
@@ -90,7 +98,7 @@ public class ModuleVideoService {
 		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
 		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
-		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		if (moduleVideoEntity == null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_NOT_FOUND_IN_MODULE);
 
@@ -113,12 +121,17 @@ public class ModuleVideoService {
 		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		//TODO $$$ checkIfThisModuleBelongsToThisCourse
 
-		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId());
+		videoRepository.findByUserIdAndVideoIdAndDeletedIsFalse(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId())
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
+		
+		moduleRepository.findByModuleIdAndCourseId(moduleVideoVO.getModuleId(), moduleVideoVO.getCourseId())
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
+		
+		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		if (moduleVideoEntity != null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_ALREADY_IN_MODULE);
 
-		moduleVideoVO.setPosition(getLastPosition(moduleVideoVO));
-		moduleVideoVO.setUserId(null);
+		moduleVideoVO.setPosition(getLastPosition(moduleVideoVO) + 1);
 		moduleVideoEntity = new ModelMapper().map(moduleVideoVO, ModuleVideoEntity.class);
 		moduleVideoEntity = moduleVideoRepository.save(moduleVideoEntity);
 		moduleVideoVO = new ModelMapper().map(moduleVideoEntity, ModuleVideoVO.class);
@@ -126,62 +139,12 @@ public class ModuleVideoService {
 	}
 
 	private int getLastPosition(ModuleVideoVO moduleVideoVO) {
-		List<ModuleVideoEntity> videos = moduleVideoRepository.findByModuleIdOrderByPositionAsc(moduleVideoVO.getModuleId());
+		List<ModuleVideoEntity> videos = moduleVideoRepository.findByUserIdAndModuleIdOrderByPositionAsc(moduleVideoVO.getUserId(), moduleVideoVO.getModuleId());
 		if (videos.size() == 0)
 			return 1;
 		return videos.get(videos.size() - 1).getPosition();
 	}
 
-	/*
-	 * public TrailEntity retrieveById(String id) { Optional<TrailEntity> user =
-	 * trailRepository.findById(id); if (user.isEmpty()) throw
-	 * ThrowService.doIt(404, M.USER_NOT_FOUND); return user.get(); }
-	 * 
-	 * public TrailVO retrieveByEmailAndPassword(TrailVO userVO) { if
-	 * (StringUtils.isBlank(userVO.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(userVO.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB =
-	 * trailRepository.findByEmailAndPasswordAndDeletedIsFalse(userVO.getEmail(),
-	 * userVO.getPassword()); if (!userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND,
-	 * M.LOGIN_WRONG_LOGIN_OR_PASSWORD);
-	 * 
-	 * userVO.setId(userFromDB.get().getId().toString()); userVO.setPassword(null);
-	 * 
-	 * return userVO; }
-	 * 
-	 * public TrailVO update(TrailVO user, String id) { if
-	 * (StringUtils.isBlank(user.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(user.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB = trailRepository.findById(id); if
-	 * (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * userFromDB =
-	 * trailRepository.findByEmailAndIdNotAndDeletedIsFalse(user.getEmail(), id); if
-	 * (userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.USER_EMAIL_ALREADY_IN_USE);
-	 * 
-	 * user.setId(id); trailRepository.save(new TrailEntity(user)); return user; }
-	 * 
-	 * public TrailEntity delete(String id) { Optional<TrailEntity> userFromDB =
-	 * trailRepository.findById(id); if (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * TrailEntity user = userFromDB.get(); user.setDeleted(true);
-	 * trailRepository.save(user); user.setPassword(""); return user; }
-	 * 
-	 * public void deleteTest(String locale, String id) { Optional<TrailEntity>
-	 * userFromDB = trailRepository.findById(id); if (userFromDB.isEmpty()) throw
-	 * ThrowService.doIt(locale, 404, M.USER_NOT_FOUND);
-	 * 
-	 * trailRepository.delete(userFromDB.get()); }
-	 */
+	
 
 }

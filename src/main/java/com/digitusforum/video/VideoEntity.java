@@ -14,7 +14,8 @@ public class VideoEntity {
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	private String videoId;
-	private String subjectId;
+	private String userId;
+	private String perfilId;
 	private String name;
 	private String sinopse;
 	private String description;
@@ -22,20 +23,28 @@ public class VideoEntity {
 	private String thumbnail;
 	private boolean deleted;
 
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getPerfilId() {
+		return perfilId;
+	}
+
+	public void setPerfilId(String perfilId) {
+		this.perfilId = perfilId;
+	}
+
 	public String getVideoId() {
 		return videoId;
 	}
 
 	public void setVideoId(String videoId) {
 		this.videoId = videoId;
-	}
-
-	public String getSubjectId() {
-		return subjectId;
-	}
-
-	public void setSubjectId(String subjectId) {
-		this.subjectId = subjectId;
 	}
 
 	public String getName() {

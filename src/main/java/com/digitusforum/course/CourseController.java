@@ -34,7 +34,7 @@ public class CourseController {
 	public CourseEntity retrieveById(@RequestBody CourseVO courseVO) {
 		return courseService.retrieveById(courseVO);
 	}
-	
+
 	@RequestMapping(value = "/course/v1/retrieveSubjectsByCourseId")
 	public CourseVO retrieveSubjectsByCourseId(@RequestBody CourseVO courseVO) {
 		return courseService.retrieveSubjectsByCourseId(courseVO);
@@ -49,26 +49,10 @@ public class CourseController {
 	public List<CourseEntity> retrieveByPerfil(@RequestBody CourseVO courseVO) {
 		return courseService.retrieveByPerfil(courseVO);
 	}
-	
+
 	@RequestMapping(value = "/course/v1/delete")
 	public CourseVO delete(@RequestBody CourseVO courseVO) {
 		return courseService.delete(courseVO);
 	}
 
-	/*
-	 * @RequestMapping(value = "/user/v1/{id}/retrieve") public Object
-	 * retrieveById(@PathVariable String id) { return trailService.retrieveById(id);
-	 * }
-	 * 
-	 * @RequestMapping(value = "/user/v1/retrieve/byEmailAndPassword") public
-	 * TrailVO retrieve(@RequestBody TrailVO user) { return
-	 * trailService.retrieveByEmailAndPassword(user); }
-	 * 
-	 * @RequestMapping(value = "/user/v1/{id}/update") public Object
-	 * update(@PathVariable String id, @RequestBody TrailVO user) { return
-	 * trailService.update(user, id); }
-	 * 
-	 * @RequestMapping(value = "/user/v1/{id}/delete") public Object
-	 * delete(@PathVariable String id) { return trailService.delete(id); }
-	 */
 }

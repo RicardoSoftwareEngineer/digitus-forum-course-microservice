@@ -8,7 +8,7 @@ import javax.persistence.Table;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-@Table(name = "Trail")
+@Table(name = "Course")
 public class CourseEntity {
 	@Id
 	@GeneratedValue(generator = "uuid2")

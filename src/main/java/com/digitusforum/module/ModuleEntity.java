@@ -15,11 +15,20 @@ public class ModuleEntity {
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	private String moduleId;
 	private String courseId;
+	private String userId;
 	private String name;
 	private String sinopse;
 	private int number;
 	private int newNumber;
 	private String description;
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 
 	public String getModuleId() {
 		return moduleId;

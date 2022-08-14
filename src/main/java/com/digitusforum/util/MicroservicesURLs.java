@@ -22,10 +22,10 @@ public class MicroservicesURLs {
 	public static String PERFIL_RETRIEVE_LAST_USED = PERFIL + "/retrieve/lastUsed"; 
 	public static String PERFIL_BELONG_TO_USER = PERFIL + "/%s/belongToUser/%s"; 
 	
-	public static String TRAIL = EnvironmentService.TRAIL_AND_COURSE_SERVER_URL + EnvironmentService.TRAIL_AND_COURSE_SERVER_PORT + "/trail" + EnvironmentService.TRAIL_AND_COURSE_SERVER_VERSION;
-	public static String FOREST = EnvironmentService.TRAIL_AND_COURSE_SERVER_URL + EnvironmentService.TRAIL_AND_COURSE_SERVER_PORT + "/forest" + EnvironmentService.TRAIL_AND_COURSE_SERVER_VERSION;
-	public static String TREE = EnvironmentService.TRAIL_AND_COURSE_SERVER_URL + EnvironmentService.TRAIL_AND_COURSE_SERVER_PORT + "/tree" + EnvironmentService.TRAIL_AND_COURSE_SERVER_VERSION;
-	public static String FOREST_BELONG_TO_USER = FOREST + "/belongToUser";
+	public static String COURSE = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/course" + EnvironmentService.COURSE_SERVER_VERSION;
+	public static String SUBJECT = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/subject" + EnvironmentService.COURSE_SERVER_VERSION;
+	public static String VIDEO = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/video" + EnvironmentService.COURSE_SERVER_VERSION;
+	public static String SUBJECT_BELONG_TO_USER = SUBJECT + "/belongToUser";
 	
 
 }

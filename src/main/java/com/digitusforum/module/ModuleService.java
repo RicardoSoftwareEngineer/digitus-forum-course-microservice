@@ -55,7 +55,9 @@ public class ModuleService {
 		if (StringUtils.isBlank(moduleVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_NAME);
 
-		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		courseRepository.findByUserIdAndCourseIdAndDeletedIsFalse(moduleVO.getUserId(), moduleVO.getCourseId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND));
+		
 		moduleVO.setNumber(getLastModule(moduleVO));
 		ModuleEntity moduleEntity = new ModelMapper().map(moduleVO, ModuleEntity.class);
 		moduleEntity = moduleRepository.save(moduleEntity);
@@ -220,56 +222,6 @@ public class ModuleService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
 	}
 
-	/*
-	 * public TrailEntity retrieveById(String id) { Optional<TrailEntity> user =
-	 * trailRepository.findById(id); if (user.isEmpty()) throw
-	 * ThrowService.doIt(404, M.USER_NOT_FOUND); return user.get(); }
-	 * 
-	 * public TrailVO retrieveByEmailAndPassword(TrailVO userVO) { if
-	 * (StringUtils.isBlank(userVO.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(userVO.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB =
-	 * trailRepository.findByEmailAndPasswordAndDeletedIsFalse(userVO.getEmail(),
-	 * userVO.getPassword()); if (!userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND,
-	 * M.LOGIN_WRONG_LOGIN_OR_PASSWORD);
-	 * 
-	 * userVO.setId(userFromDB.get().getId().toString()); userVO.setPassword(null);
-	 * 
-	 * return userVO; }
-	 * 
-	 * public TrailVO update(TrailVO user, String id) { if
-	 * (StringUtils.isBlank(user.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(user.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB = trailRepository.findById(id); if
-	 * (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * userFromDB =
-	 * trailRepository.findByEmailAndIdNotAndDeletedIsFalse(user.getEmail(), id); if
-	 * (userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.USER_EMAIL_ALREADY_IN_USE);
-	 * 
-	 * user.setId(id); trailRepository.save(new TrailEntity(user)); return user; }
-	 * 
-	 * public TrailEntity delete(String id) { Optional<TrailEntity> userFromDB =
-	 * trailRepository.findById(id); if (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * TrailEntity user = userFromDB.get(); user.setDeleted(true);
-	 * trailRepository.save(user); user.setPassword(""); return user; }
-	 * 
-	 * public void deleteTest(String locale, String id) { Optional<TrailEntity>
-	 * userFromDB = trailRepository.findById(id); if (userFromDB.isEmpty()) throw
-	 * ThrowService.doIt(locale, 404, M.USER_NOT_FOUND);
-	 * 
-	 * trailRepository.delete(userFromDB.get()); }
-	 */
+	
 
 }

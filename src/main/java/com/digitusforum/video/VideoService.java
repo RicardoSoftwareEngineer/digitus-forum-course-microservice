@@ -23,6 +23,10 @@ import com.digitusforum.moduleVideo.ModuleVideoRepository;
 import com.digitusforum.subject.SubjectEntity;
 import com.digitusforum.subject.SubjectRepository;
 import com.digitusforum.subject.SubjectService;
+import com.digitusforum.subject.SubjectVO;
+import com.digitusforum.subjectVideo.SubjectVideoEntity;
+import com.digitusforum.subjectVideo.SubjectVideoRepository;
+import com.digitusforum.subjectVideo.SubjectVideoVO;
 import com.digitusforum.util.RequestService;
 
 @Service
@@ -32,6 +36,8 @@ public class VideoService {
 	VideoRepository videoRepository;
 	@Autowired
 	SubjectRepository subjectRepository;
+	@Autowired
+	SubjectVideoRepository subjectVideoRepository;
 	@Autowired
 	ModuleRepository moduleRepository;
 	@Autowired
@@ -46,19 +52,15 @@ public class VideoService {
 		Optional<VideoEntity> videoEntity = videoRepository.findById(videoId);
 		if (videoEntity.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND);
-		Optional<SubjectEntity> subjectEntity = subjectRepository.findById(videoEntity.get().getSubjectId());
-		requestService.checkIfThisPerfilBelongsToThisUser(subjectEntity.get().getPerfilId(), userId);
+		//Optional<SubjectEntity> subjectEntity = subjectRepository.findById(videoEntity.get().getSubjectId());
+		//requestService.checkIfThisPerfilBelongsToThisUser(subjectEntity.get().getPerfilId(), userId);
 	}
 
 	public VideoVO create(VideoVO videoVO) {
 		if (StringUtils.isBlank(videoVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_USER_ID);
-		if (StringUtils.isBlank(videoVO.getSubjectId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_SUBJECT_ID);
 		if (StringUtils.isBlank(videoVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_NAME);
-
-		//subjectService.thisSubjectBelongToThisUser(videoVO.getSubjectId(), videoVO.getUserId());
 
 		VideoEntity videoEntity = new ModelMapper().map(videoVO, VideoEntity.class);
 		videoEntity = videoRepository.save(videoEntity);
@@ -75,13 +77,8 @@ public class VideoService {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND);
 
 		String moduleId = videoVO.getModuleId();
-		
 		videoVO = new ModelMapper().map(videoEntity, VideoVO.class);
-
 		if (StringUtils.isNotBlank(moduleId)) {
-			moduleRepository.findById(moduleId)
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
-
 			videoVO.setModuleId(moduleId);
 			videoVO = getPreviousAndNextVideo(videoVO);
 			//VideoEntity moduleVideoEntity = videoRepository.findById(videoVO.getVideoId());
@@ -89,9 +86,6 @@ public class VideoService {
 			List<LinkVO> links = new ModelMapper().map(linkEntities, List.class);
 			videoVO.setLinks(links);
 		}
-
-		SubjectEntity subject = subjectRepository.findBySubjectIdAndDeletedIsFalse(videoVO.getSubjectId());
-		videoVO.setSubjectName(subject.getName());
 		return videoVO;
 	}
 
@@ -99,7 +93,7 @@ public class VideoService {
 	CourseRepository courseRepository;
 
 	private VideoVO getPreviousAndNextVideo(VideoVO videoVO) {
-		String courseId = moduleRepository.findById(videoVO.getModuleId())
+		String courseId = moduleVideoRepository.findByModuleIdAndVideoId(videoVO.getModuleId(), videoVO.getVideoId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND)).getCourseId();
 
 		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(courseId);
@@ -146,7 +140,8 @@ public class VideoService {
 						videoVO.setNextVideoModuleId(modules.get(i).getVideos().get(j + 1).getModuleId());
 					}
 					if (j == modules.get(i).getVideos().size() - 1) {
-						if(i != modules.size() && modules.get(i+1).getVideos().size() > 0){
+						//if(i != modules.size() && modules.get(i+1).getVideos().size() > 0){
+						if(i < modules.size()-1 && modules.get(i+1).getVideos().size() > 0){
 							videoVO.setNextVideoName(modules.get(i+1).getVideos().get(0).getName());
 							videoVO.setNextVideoId(modules.get(i+1).getVideos().get(0).getVideoId());
 							videoVO.setNextVideoSubjectId(modules.get(i+1).getVideos().get(0).getSubjectId());
@@ -157,18 +152,29 @@ public class VideoService {
 			}
 		}
 		return videoVO;
-
 	}
 
+	public List<VideoVO> retrieveBySubject(SubjectVO subjectVO) {
+		VideoVO videoVO = new VideoVO();
+		videoVO.setUserId(subjectVO.getUserId());
+		videoVO.setSubjectId(subjectVO.getSubjectId());
+		return retrieveBySubject(videoVO);
+	}
+	
 	public List<VideoVO> retrieveBySubject(VideoVO videoVO) {
 		if (StringUtils.isBlank(videoVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_USER_ID);
 		if (StringUtils.isBlank(videoVO.getSubjectId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_MISSING_SUBJECT_ID);
 
-		subjectService.thisSubjectBelongToThisUser(videoVO.getSubjectId(), videoVO.getUserId());
-		List<VideoEntity> videoEntities = videoRepository.findBySubjectIdAndDeletedIsFalse(videoVO.getSubjectId());
-		List<VideoVO> videos = new ModelMapper().map(videoEntities, List.class);
+		//subjectService.thisSubjectBelongToThisUser(videoVO.getSubjectId(), videoVO.getUserId());
+		List<VideoVO> videos = new ArrayList<>();
+		List<SubjectVideoEntity> subjectVideoEntities = subjectVideoRepository.findBySubjectIdOrderByPositionAsc(videoVO.getSubjectId());
+		//List<SubjectVideoVO> subjectVideos = new ModelMapper().map(subjectVideoEntities, List.class);
+		for (SubjectVideoEntity subjectVideoEntity : subjectVideoEntities) {
+			VideoEntity video = videoRepository.findByVideoIdAndDeletedIsFalse(subjectVideoEntity.getVideoId());
+			videos.add(new ModelMapper().map(video, VideoVO.class));
+		}
 		return videos;
 	}
 
@@ -187,8 +193,8 @@ public class VideoService {
 			videoEntity.setDescription(videoVO.getDescription());
 		if (StringUtils.isNotBlank(videoVO.getUrl()))
 			videoEntity.setUrl(videoVO.getUrl());
-		if (StringUtils.isNotBlank(videoVO.getSubjectId()))
-			videoEntity.setSubjectId(videoVO.getSubjectId()); //TODO check if this subject exists
+		//if (StringUtils.isNotBlank(videoVO.getSubjectId()))
+			//videoEntity.setSubjectId(videoVO.getSubjectId()); 
 
 		videoRepository.save(videoEntity);
 		videoVO = new ModelMapper().map(videoEntity, VideoVO.class);
@@ -209,56 +215,6 @@ public class VideoService {
 		return videoVO;
 	}
 
-	/*
-	 * public TrailEntity retrieveById(String id) { Optional<TrailEntity> user =
-	 * trailRepository.findById(id); if (user.isEmpty()) throw
-	 * ThrowService.doIt(404, M.USER_NOT_FOUND); return user.get(); }
-	 * 
-	 * public TrailVO retrieveByEmailAndPassword(TrailVO userVO) { if
-	 * (StringUtils.isBlank(userVO.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(userVO.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB =
-	 * trailRepository.findByEmailAndPasswordAndDeletedIsFalse(userVO.getEmail(),
-	 * userVO.getPassword()); if (!userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND,
-	 * M.LOGIN_WRONG_LOGIN_OR_PASSWORD);
-	 * 
-	 * userVO.setId(userFromDB.get().getId().toString()); userVO.setPassword(null);
-	 * 
-	 * return userVO; }
-	 * 
-	 * public TrailVO update(TrailVO user, String id) { if
-	 * (StringUtils.isBlank(user.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(user.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB = trailRepository.findById(id); if
-	 * (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * userFromDB =
-	 * trailRepository.findByEmailAndIdNotAndDeletedIsFalse(user.getEmail(), id); if
-	 * (userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.USER_EMAIL_ALREADY_IN_USE);
-	 * 
-	 * user.setId(id); trailRepository.save(new TrailEntity(user)); return user; }
-	 * 
-	 * public TrailEntity delete(String id) { Optional<TrailEntity> userFromDB =
-	 * trailRepository.findById(id); if (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * TrailEntity user = userFromDB.get(); user.setDeleted(true);
-	 * trailRepository.save(user); user.setPassword(""); return user; }
-	 * 
-	 * public void deleteTest(String locale, String id) { Optional<TrailEntity>
-	 * userFromDB = trailRepository.findById(id); if (userFromDB.isEmpty()) throw
-	 * ThrowService.doIt(locale, 404, M.USER_NOT_FOUND);
-	 * 
-	 * trailRepository.delete(userFromDB.get()); }
-	 */
+	
 
 }

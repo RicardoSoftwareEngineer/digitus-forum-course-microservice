@@ -21,6 +21,8 @@ import com.digitusforum.moduleVideo.ModuleVideoRepository;
 import com.digitusforum.subject.SubjectEntity;
 import com.digitusforum.subject.SubjectRepository;
 import com.digitusforum.subject.SubjectVO;
+import com.digitusforum.subjectVideo.SubjectVideoEntity;
+import com.digitusforum.subjectVideo.SubjectVideoRepository;
 import com.digitusforum.util.RequestService;
 import com.digitusforum.video.VideoEntity;
 import com.digitusforum.video.VideoRepository;
@@ -39,6 +41,8 @@ public class CourseService {
 	VideoRepository videoRepository;
 	@Autowired
 	ModuleVideoRepository moduleVideoRepository;
+	@Autowired
+	SubjectVideoRepository subjectVideoRepository;
 	RequestService requestService = new RequestService();
 
 	public List<ModuleVO> retrieveModulesWithVideosByCourseIdDEPRECATED(CourseVO courseVO) {
@@ -71,7 +75,7 @@ public class CourseService {
 		CourseEntity course = courseRepository.findByCourseIdAndDeletedIsFalse(courseId);
 		if (course == null)
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND);
-		requestService.checkIfThisPerfilBelongsToThisUser(course.getPerfilId(), userId);
+		//requestService.checkIfThisPerfilBelongsToThisUser(course.getPerfilId(), userId);
 		return true;
 	}
 
@@ -90,8 +94,6 @@ public class CourseService {
 		if (StringUtils.isBlank(courseVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_NAME);
 
-		requestService.checkIfThisPerfilBelongsToThisUser(courseVO.getPerfilId(), courseVO.getUserId());
-
 		CourseEntity courseFromDB = courseRepository.findByUserIdAndPerfilIdAndNameAndDeletedIsFalse(
 				courseVO.getUserId(), courseVO.getPerfilId(), courseVO.getName());
 		if (courseFromDB != null)
@@ -102,15 +104,15 @@ public class CourseService {
 		return courseEntity;
 	}
 
-	public List<CourseEntity> retrieveByPerfil(CourseVO trailVO) {
-		if (StringUtils.isBlank(trailVO.getUserId()))
+	public List<CourseEntity> retrieveByPerfil(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_USER_ID);
-		requestService.checkIfThisPerfilBelongsToThisUser(trailVO.getPerfilId(), trailVO.getUserId());
-		return courseRepository.findByPerfilIdAndDeletedIsFalse(trailVO.getPerfilId());
+		requestService.checkIfThisPerfilBelongsToThisUser(courseVO.getPerfilId(), courseVO.getUserId());
+		return courseRepository.findByPerfilIdAndDeletedIsFalse(courseVO.getPerfilId());
 	}
 
-	public List<CourseEntity> retrieveByForest(CourseVO trailVO) {
-		if (StringUtils.isBlank(trailVO.getUserId()))
+	public List<CourseEntity> retrieveByForest(CourseVO courseVO) {
+		if (StringUtils.isBlank(courseVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_USER_ID);
 		return null;
 	}
@@ -148,17 +150,12 @@ public class CourseService {
 	public CourseVO retrieveSubjectsByCourseId(CourseVO courseVO) {
 		if (StringUtils.isBlank(courseVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
-
-		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseIdOrderByPositionAsc(courseVO.getCourseId());
-		List<VideoVO> videos = new ArrayList<>();
-		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
-			
-			//VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
-			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId())
-					.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
-			SubjectEntity subjectEntitiy = subjectRepository.findBySubjectIdAndDeletedIsFalse(videoEntity.getSubjectId());
+		int count = 1;
+		List<SubjectVideoEntity> subjectVideoEntities = subjectVideoRepository.findByCourseIdOrderByPositionAsc(courseVO.getCourseId());
+		for (SubjectVideoEntity subjectVideoEntity : subjectVideoEntities) {
+			SubjectEntity subjectEntitiy = subjectRepository.findBySubjectIdAndDeletedIsFalse(subjectVideoEntity.getSubjectId());
 			if(subjectEntitiy == null)
-				throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_NOT_FOUND);
+				throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_NOT_FOUND + " sup");
 			SubjectVO subject = new ModelMapper().map(subjectEntitiy, SubjectVO.class);
 			if(!courseVO.getSubjects().contains(subject))
 				courseVO.getSubjects().add(subject);
@@ -166,56 +163,6 @@ public class CourseService {
 		return courseVO;
 	}
 
-	/*
-	 * public TrailEntity retrieveById(String id) { Optional<TrailEntity> user =
-	 * trailRepository.findById(id); if (user.isEmpty()) throw
-	 * ThrowService.doIt(404, M.USER_NOT_FOUND); return user.get(); }
-	 * 
-	 * public TrailVO retrieveByEmailAndPassword(TrailVO userVO) { if
-	 * (StringUtils.isBlank(userVO.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(userVO.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB =
-	 * trailRepository.findByEmailAndPasswordAndDeletedIsFalse(userVO.getEmail(),
-	 * userVO.getPassword()); if (!userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND,
-	 * M.LOGIN_WRONG_LOGIN_OR_PASSWORD);
-	 * 
-	 * userVO.setId(userFromDB.get().getId().toString()); userVO.setPassword(null);
-	 * 
-	 * return userVO; }
-	 * 
-	 * public TrailVO update(TrailVO user, String id) { if
-	 * (StringUtils.isBlank(user.getEmail())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_EMAIL); if
-	 * (StringUtils.isBlank(user.getPassword())) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.LOGIN_MISSING_PASSWORD);
-	 * 
-	 * Optional<TrailEntity> userFromDB = trailRepository.findById(id); if
-	 * (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * userFromDB =
-	 * trailRepository.findByEmailAndIdNotAndDeletedIsFalse(user.getEmail(), id); if
-	 * (userFromDB.isPresent()) throw new
-	 * ResponseStatusException(HttpStatus.FORBIDDEN, M.USER_EMAIL_ALREADY_IN_USE);
-	 * 
-	 * user.setId(id); trailRepository.save(new TrailEntity(user)); return user; }
-	 * 
-	 * public TrailEntity delete(String id) { Optional<TrailEntity> userFromDB =
-	 * trailRepository.findById(id); if (userFromDB.isEmpty()) throw new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.USER_NOT_FOUND);
-	 * 
-	 * TrailEntity user = userFromDB.get(); user.setDeleted(true);
-	 * trailRepository.save(user); user.setPassword(""); return user; }
-	 * 
-	 * public void deleteTest(String locale, String id) { Optional<TrailEntity>
-	 * userFromDB = trailRepository.findById(id); if (userFromDB.isEmpty()) throw
-	 * ThrowService.doIt(locale, 404, M.USER_NOT_FOUND);
-	 * 
-	 * trailRepository.delete(userFromDB.get()); }
-	 */
+	
 
 }

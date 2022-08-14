@@ -4,6 +4,7 @@ public class M {
 	public static String VIDEO_NOT_FOUND = "video.not_found";
 	public static String MODULE_NOT_FOUND = "module.not_found";
 	public static String VIDEO_MISSING_SUBJECT_ID = "video.missing.subject_id";
+	public static String VIDEO_MISSING_PERFIL_ID = "video.missing.perfil_id";
 	public static String VIDEO_MISSING_USER_ID = "video.missing.user_id";
 	public static String VIDEO_MISSING_ID = "video.missing.id";
 	public static String VIDEO_MISSING_NAME = "video.missing.name";

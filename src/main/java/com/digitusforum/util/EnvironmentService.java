@@ -19,9 +19,9 @@ public class EnvironmentService {
 	public static String PERFIL_SERVER_URL = getEnvVar("PERFIL_SERVER_URL");
 	public static String PERFIL_SERVER_VERSION = getEnvVar("PERFIL_SERVER_VERSION");
 	
-	public static String TRAIL_AND_COURSE_SERVER_PORT = getEnvVar("TRAIL_AND_COURSE_SERVER_PORT");
-	public static String TRAIL_AND_COURSE_SERVER_URL = getEnvVar("TRAIL_AND_COURSE_SERVER_URL");
-	public static String TRAIL_AND_COURSE_SERVER_VERSION = getEnvVar("TRAIL_AND_COURSE_SERVER_VERSION");
+	public static String COURSE_SERVER_PORT = getEnvVar("COURSE_SERVER_PORT");
+	public static String COURSE_SERVER_URL = getEnvVar("COURSE_SERVER_URL");
+	public static String COURSE_SERVER_VERSION = getEnvVar("COURSE_SERVER_VERSION");
 	
 	
 	public static String JWT_KEY = getEnvVar("JWT_KEY");
@@ -50,9 +50,9 @@ public class EnvironmentService {
 		case "PERFIL_SERVER_URL": return "http://localhost:";
 		case "PERFIL_SERVER_VERSION": return "/v1";
 		
-		case "TRAIL_AND_COURSE_SERVER_PORT": return "8087";
-		case "TRAIL_AND_COURSE_SERVER_URL": return "http://localhost:";
-		case "TRAIL_AND_COURSE_SERVER_VERSION": return "/v1";
+		case "COURSE_SERVER_PORT": return "8087";
+		case "COURSE_SERVER_URL": return "http://localhost:";
+		case "COURSE_SERVER_VERSION": return "/v1";
 		
 		case "JWT_KEY": return "a secret key";
 		case "TOKEN_EXPIRATION_IN_SECONDS": return "30";

@@ -14,18 +14,18 @@ import com.google.gson.Gson;
 
 public class RequestService {
 
-	private void checkPerfilMS() {
-		if (!isUp(MicroservicesURLs.PERFIL))
-			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, M.PERFIL_MICROSERVICE_OFFLINE);
+	private void checkUserMS() {
+		if (!isUp(MicroservicesURLs.USER))
+			throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, M.USER_MICROSERVICE_OFFLINE);
 	}
 	
-	public boolean checkIfThisPerfilBelongsToThisUser(String perfilId, String userId) {
-		checkPerfilMS();
-		String url = MicroservicesURLs.PERFIL_BELONG_TO_USER;
-		url = String.format(url, perfilId, userId);
-		request(url, "");
-		return true;
+	
+	
+	public boolean checkIfThisPerfilBelongsToThisUser(String courseId, String userId) {
+		return false;
 	}
+	
+	
 	
 
 	public boolean isUp(String endpoint) {

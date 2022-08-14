@@ -8,6 +8,7 @@ public class VideoVO {
 	private String videoId;
 	private String userId;
 	private String subjectId;
+	private String perfilId;
 	private String subjectName;
 	private String moduleVideoId;
 	private String moduleId;
@@ -28,6 +29,12 @@ public class VideoVO {
 	private String thumbnail;
 	private boolean deleted;
 	
+	public String getPerfilId() {
+		return perfilId;
+	}
+	public void setPerfilId(String perfilId) {
+		this.perfilId = perfilId;
+	}
 	public List<LinkVO> getLinks() {
 		return links;
 	}

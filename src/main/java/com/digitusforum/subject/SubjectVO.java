@@ -7,13 +7,22 @@ import com.digitusforum.video.VideoVO;
 
 public class SubjectVO {
 	private String subjectId;
+	private String videoId;
 	private String userId;
-	private String perfilId;
+	private String courseId;
 	private String name;
 	private String sinopse;
 	private String description;
 	private List<VideoVO> videos = new ArrayList<>();
 	private boolean deleted;
+
+	public String getVideoId() {
+		return videoId;
+	}
+
+	public void setVideoId(String videoId) {
+		this.videoId = videoId;
+	}
 
 	public List<VideoVO> getVideos() {
 		return videos;
@@ -39,12 +48,12 @@ public class SubjectVO {
 		this.subjectId = subjectId;
 	}
 
-	public String getPerfilId() {
-		return perfilId;
+	public String getCourseId() {
+		return courseId;
 	}
 
-	public void setPerfilId(String perfilId) {
-		this.perfilId = perfilId;
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
 	}
 
 	public String getName() {
