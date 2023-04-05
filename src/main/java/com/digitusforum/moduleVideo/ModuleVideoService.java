@@ -98,7 +98,9 @@ public class ModuleVideoService {
 		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
 		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 
-		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
+		ModuleVideoEntity moduleVideoEntity =
+				moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(
+						moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
 		if (moduleVideoEntity == null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.VIDEO_NOT_FOUND_IN_MODULE);
 
