@@ -73,9 +73,8 @@ public class CourseService {
 
 	public boolean checkIfThisCourseBelongToThisUser(String courseId, String userId) {
 		CourseEntity course = courseRepository.findByCourseIdAndDeletedIsFalse(courseId);
-		if (course == null)
+		if (course == null || StringUtils.isBlank(userId) || !userId.equals(course.getUserId()))
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND);
-		//requestService.checkIfThisPerfilBelongsToThisUser(course.getPerfilId(), userId);
 		return true;
 	}
 
@@ -122,6 +121,7 @@ public class CourseService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_USER_ID);
 		if (StringUtils.isBlank(courseVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
+		checkIfThisCourseBelongToThisUser(courseVO.getCourseId(), courseVO.getUserId());
 		return courseRepository.findByCourseIdAndDeletedIsFalse(courseVO.getCourseId());
 	}
 
@@ -138,6 +138,7 @@ public class CourseService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.COURSE_MISSING_ID);
 
 		requestService.checkIfThisPerfilBelongsToThisUser(courseVO.getPerfilId(), courseVO.getUserId());
+		checkIfThisCourseBelongToThisUser(courseVO.getCourseId(), courseVO.getUserId());
 
 		CourseEntity courseFromDB = courseRepository.findByCourseIdAndDeletedIsFalse(courseVO.getCourseId());
 		if (courseFromDB == null)
