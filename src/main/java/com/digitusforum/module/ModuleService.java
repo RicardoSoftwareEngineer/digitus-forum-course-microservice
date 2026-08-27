@@ -139,7 +139,7 @@ public class ModuleService {
 		if (StringUtils.isBlank(moduleVO.getCourseId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
 
-		//courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
 
 		moduleRepository.findById(moduleVO.getModuleId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
