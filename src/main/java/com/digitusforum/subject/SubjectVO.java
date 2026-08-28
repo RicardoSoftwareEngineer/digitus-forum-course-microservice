@@ -9,7 +9,7 @@ public class SubjectVO {
 	private String subjectId;
 	private String videoId;
 	private String userId;
-	private String courseId;
+	private String trainingId;
 	private String name;
 	private String sinopse;
 	private String description;
@@ -48,12 +48,12 @@ public class SubjectVO {
 		this.subjectId = subjectId;
 	}
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public String getName() {

@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseEntity;
-import com.digitusforum.course.CourseRepository;
+import com.digitusforum.training.TrainingEntity;
+import com.digitusforum.training.TrainingRepository;
 import com.digitusforum.util.RequestService;
 import com.digitusforum.video.VideoEntity;
 import com.digitusforum.video.VideoRepository;
@@ -25,7 +25,7 @@ public class SubjectService {
 	@Autowired
 	VideoRepository videoRepository;
 	@Autowired
-	CourseRepository courseRepository;
+	TrainingRepository trainingRepository;
 	@Autowired
 	VideoService videoService;
 	RequestService requestService = new RequestService();
@@ -35,17 +35,17 @@ public class SubjectService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_USER_ID);
 		if (StringUtils.isBlank(subjectVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_NAME);
-		if (StringUtils.isBlank(subjectVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(subjectVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_TRAINING_ID);
 
-		courseRepository.findByUserIdAndCourseIdAndDeletedIsFalse(
+		trainingRepository.findByUserIdAndTrainingIdAndDeletedIsFalse(
 				subjectVO.getUserId(),
-				subjectVO.getCourseId())
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND));
+				subjectVO.getTrainingId())
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.TRAINING_NOT_FOUND));
 
-		SubjectEntity subjectFromDB = subjectRepository.findByUserIdAndCourseIdAndNameAndDeletedIsFalse(
+		SubjectEntity subjectFromDB = subjectRepository.findByUserIdAndTrainingIdAndNameAndDeletedIsFalse(
 				subjectVO.getUserId(),
-				subjectVO.getCourseId(),
+				subjectVO.getTrainingId(),
 				subjectVO.getName());
 		if (subjectFromDB != null)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_NAME_ALREADY_IN_USE);
@@ -56,18 +56,18 @@ public class SubjectService {
 		return subjectVO;
 	}
 
-	public List<SubjectVO> retrieveByCourseId(SubjectVO subjectVO) {
-		if (StringUtils.isBlank(subjectVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_COURSE_ID);
+	public List<SubjectVO> retrieveByTrainingId(SubjectVO subjectVO) {
+		if (StringUtils.isBlank(subjectVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_MISSING_TRAINING_ID);
 
 		List<SubjectEntity> subjectEntities = subjectRepository
-				.findByCourseIdAndDeletedIsFalse(subjectVO.getCourseId());
+				.findByTrainingIdAndDeletedIsFalse(subjectVO.getTrainingId());
 		List<SubjectVO> subjects = new ModelMapper().map(subjectEntities, List.class);
 		return subjects;
 	}
 
-	public List<SubjectEntity> retrieveByCourse(SubjectVO subjectVO) {
-		return subjectRepository.findByCourseIdAndDeletedIsFalse(subjectVO.getCourseId());
+	public List<SubjectEntity> retrieveByTraining(SubjectVO subjectVO) {
+		return subjectRepository.findByTrainingIdAndDeletedIsFalse(subjectVO.getTrainingId());
 	}
 
 	public SubjectVO retrieveByIdWithVideos(SubjectVO subjectVO) {

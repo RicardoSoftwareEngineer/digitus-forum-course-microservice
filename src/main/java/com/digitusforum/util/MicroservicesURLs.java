@@ -22,9 +22,9 @@ public class MicroservicesURLs {
 	public static String PERFIL_RETRIEVE_LAST_USED = PERFIL + "/retrieve/lastUsed"; 
 	public static String PERFIL_BELONG_TO_USER = PERFIL + "/%s/belongToUser/%s"; 
 	
-	public static String COURSE = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/course" + EnvironmentService.COURSE_SERVER_VERSION;
-	public static String SUBJECT = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/subject" + EnvironmentService.COURSE_SERVER_VERSION;
-	public static String VIDEO = EnvironmentService.COURSE_SERVER_URL + EnvironmentService.COURSE_SERVER_PORT + "/video" + EnvironmentService.COURSE_SERVER_VERSION;
+	public static String TRAINING = EnvironmentService.TRAINING_SERVER_URL + EnvironmentService.TRAINING_SERVER_PORT + "/training" + EnvironmentService.TRAINING_SERVER_VERSION;
+	public static String SUBJECT = EnvironmentService.TRAINING_SERVER_URL + EnvironmentService.TRAINING_SERVER_PORT + "/subject" + EnvironmentService.TRAINING_SERVER_VERSION;
+	public static String VIDEO = EnvironmentService.TRAINING_SERVER_URL + EnvironmentService.TRAINING_SERVER_PORT + "/video" + EnvironmentService.TRAINING_SERVER_VERSION;
 	public static String SUBJECT_BELONG_TO_USER = SUBJECT + "/belongToUser";
 	
 

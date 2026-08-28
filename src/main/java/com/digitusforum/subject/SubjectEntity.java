@@ -14,7 +14,7 @@ public class SubjectEntity {
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	private String subjectId;
-	private String courseId;
+	private String trainingId;
 	private String userId;
 	private String name;
 	private String sinopse;
@@ -29,12 +29,12 @@ public class SubjectEntity {
 		this.subjectId = subjectId;
 	}
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public String getUserId() {

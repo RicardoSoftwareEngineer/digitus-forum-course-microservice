@@ -1,4 +1,4 @@
-package com.digitusforum.course;
+package com.digitusforum.training;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,8 +8,8 @@ import java.util.Map;
 import com.digitusforum.module.ModuleVO;
 import com.digitusforum.subject.SubjectVO;
 
-public class CourseVO {
-	private String courseId;
+public class TrainingVO {
+	private String trainingId;
 	private String userId;
 	private String perfilId;
 	private String name;
@@ -37,12 +37,12 @@ public class CourseVO {
 		this.modules = modules;
 	}
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public String getUserId() {

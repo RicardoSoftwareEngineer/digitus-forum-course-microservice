@@ -11,9 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseEntity;
-import com.digitusforum.course.CourseRepository;
-import com.digitusforum.course.CourseService;
+import com.digitusforum.training.TrainingEntity;
+import com.digitusforum.training.TrainingRepository;
+import com.digitusforum.training.TrainingService;
 import com.digitusforum.link.LinkEntity;
 import com.digitusforum.link.LinkRepository;
 import com.digitusforum.link.LinkVO;
@@ -40,23 +40,23 @@ public class ModuleService {
 	@Autowired
 	ModuleVideoRepository moduleVideoRepository;
 	@Autowired
-	CourseRepository courseRepository;
+	TrainingRepository trainingRepository;
 	@Autowired
 	LinkRepository linkRepository;
 	@Autowired
-	CourseService courseService;
+	TrainingService trainingService;
 	RequestService requestService = new RequestService();
 
 	public ModuleVO create(ModuleVO moduleVO) {
 		if (StringUtils.isBlank(moduleVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
-		if (StringUtils.isBlank(moduleVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(moduleVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 		if (StringUtils.isBlank(moduleVO.getName()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_NAME);
 
-		courseRepository.findByUserIdAndCourseIdAndDeletedIsFalse(moduleVO.getUserId(), moduleVO.getCourseId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND));
+		trainingRepository.findByUserIdAndTrainingIdAndDeletedIsFalse(moduleVO.getUserId(), moduleVO.getTrainingId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.TRAINING_NOT_FOUND));
 		
 		moduleVO.setNumber(getLastModule(moduleVO));
 		ModuleEntity moduleEntity = new ModelMapper().map(moduleVO, ModuleEntity.class);
@@ -74,25 +74,25 @@ public class ModuleService {
 		return moduleVO;
 	}
 
-	public List<ModuleVO> retrieveByCourseId(ModuleVO moduleVO) {
-		if (StringUtils.isBlank(moduleVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+	public List<ModuleVO> retrieveByTrainingId(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 
-		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleEntity> moduleEntities = moduleRepository.findByTrainingIdOrderByNumber(moduleVO.getTrainingId());
 		List<ModuleVO> modules = new ModelMapper().map(moduleEntities, List.class);
 		return modules;
 	}
 
-	public List<ModuleVO> retrieveByCourseWithVideos(ModuleVO moduleVO) {
-		if (StringUtils.isBlank(moduleVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+	public List<ModuleVO> retrieveByTrainingWithVideos(ModuleVO moduleVO) {
+		if (StringUtils.isBlank(moduleVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 
-		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleEntity> moduleEntities = moduleRepository.findByTrainingIdOrderByNumber(moduleVO.getTrainingId());
 		List<ModuleVO> modules = new ArrayList<>();
 		for (ModuleEntity moduleEntity : moduleEntities)
 			modules.add(new ModelMapper().map(moduleEntity, ModuleVO.class));
 
-		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseIdOrderByPositionAsc(moduleVO.getCourseId());
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByTrainingIdOrderByPositionAsc(moduleVO.getTrainingId());
 		List<VideoVO> videos = new ArrayList<>();
 		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
 			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
@@ -136,10 +136,10 @@ public class ModuleService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
 		if (StringUtils.isBlank(moduleVO.getModuleId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
-		if (StringUtils.isBlank(moduleVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(moduleVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 
-		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		trainingService.checkIfThisTrainingBelongToThisUser(moduleVO.getTrainingId(), moduleVO.getUserId());
 
 		moduleRepository.findById(moduleVO.getModuleId())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
@@ -159,15 +159,15 @@ public class ModuleService {
 	public List<ModuleEntity> reorder(ModuleVO moduleVO) {
 		if (StringUtils.isBlank(moduleVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_USER_ID);
-		if (StringUtils.isBlank(moduleVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(moduleVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 		if (StringUtils.isBlank(moduleVO.getModuleId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_ID);
 		if (moduleVO.getNewNumber() == 0)
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_NEW_NUMBER);
 
 		checkIfThisModuleBelongToThisUser(moduleVO.getModuleId(), moduleVO.getUserId());
-		courseService.checkIfThisCourseBelongToThisUser(moduleVO.getCourseId(), moduleVO.getUserId());
+		trainingService.checkIfThisTrainingBelongToThisUser(moduleVO.getTrainingId(), moduleVO.getUserId());
 
 		Optional<ModuleEntity> moduleEntity = moduleRepository.findById(moduleVO.getModuleId());
 		if (moduleEntity.isEmpty())
@@ -183,12 +183,12 @@ public class ModuleService {
 		Optional<ModuleEntity> moduleEntity = moduleRepository.findById(moduleId);
 		if (moduleEntity.isEmpty())
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND);
-		Optional<CourseEntity> courseEntity = courseRepository.findById(moduleEntity.get().getCourseId());
-		requestService.checkIfThisPerfilBelongsToThisUser(courseEntity.get().getPerfilId(), userId);
+		Optional<TrainingEntity> trainingEntity = trainingRepository.findById(moduleEntity.get().getTrainingId());
+		requestService.checkIfThisPerfilBelongsToThisUser(trainingEntity.get().getPerfilId(), userId);
 	}
 
 	private void fixNumbers(ModuleVO moduleVO) {
-		List<ModuleEntity> modules = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleEntity> modules = moduleRepository.findByTrainingIdOrderByNumber(moduleVO.getTrainingId());
 		for (int i = 0; i < modules.size(); i++) {
 			if (modules.get(i).getNumber() != i + 1) {
 				modules.get(i).setNumber(i + 1);
@@ -198,7 +198,7 @@ public class ModuleService {
 	}
 
 	private int getLastModule(ModuleVO moduleVO) {
-		List<ModuleEntity> modules = moduleRepository.findByCourseIdOrderByNumber(moduleVO.getCourseId());
+		List<ModuleEntity> modules = moduleRepository.findByTrainingIdOrderByNumber(moduleVO.getTrainingId());
 		if (modules.size() == 0)
 			return 1;
 		return modules.get(modules.size() - 1).getNumber() + 1;
@@ -207,9 +207,9 @@ public class ModuleService {
 	/*
 	 * public List<ModuleEntity> retrieveByModule(moduleVO moduleVO) {
 	 * checkUserId(moduleVO.getUserId()); checkModuleId(moduleVO.getModuleId());
-	 * courseRepository.findById(moduleVO.getCourseId()) .orElseThrow(() -> new
-	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND)); return
-	 * moduleRepository.findByCIdOrderByNumber(moduleVO.getCourseId()); }
+	 * trainingRepository.findById(moduleVO.getTrainingId()) .orElseThrow(() -> new
+	 * ResponseStatusException(HttpStatus.NOT_FOUND, M.TRAINING_NOT_FOUND)); return
+	 * moduleRepository.findByCIdOrderByNumber(moduleVO.getTrainingId()); }
 	 */
 
 	private void checkUserId(String userId) {
@@ -219,7 +219,7 @@ public class ModuleService {
 
 	private void checkModuleId(String moduleId) {
 		if (StringUtils.isBlank(moduleId))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_COURSE_ID);
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_MISSING_TRAINING_ID);
 	}
 
 	

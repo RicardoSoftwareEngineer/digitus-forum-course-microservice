@@ -16,7 +16,7 @@ public class SubjectVideoEntity {
 	private String subjectVideoId;
 	private String subjectId;
 	private String videoId;
-	private String courseId;
+	private String trainingId;
 	private int position;
 
 	public String getSubjectVideoId() {
@@ -43,12 +43,12 @@ public class SubjectVideoEntity {
 		this.videoId = videoId;
 	}
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public int getPosition() {

@@ -21,7 +21,7 @@ public class RequestService {
 	
 	
 	
-	public boolean checkIfThisPerfilBelongsToThisUser(String courseId, String userId) {
+	public boolean checkIfThisPerfilBelongsToThisUser(String perfilId, String userId) {
 		return false;
 	}
 	

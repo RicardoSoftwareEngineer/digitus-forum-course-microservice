@@ -1,8 +1,8 @@
 <!-- para IA. não é README de humano. -->
-# SPEC — course
+# SPEC — training
 
-status: v0.3
-sha: `18c09d8`
+status: v0.4
+sha: `3a35170`
 data: 2026-08-28
 
 ## Como usar
@@ -14,60 +14,69 @@ data: 2026-08-28
 - GAP = pergunta aberta. Não trate GAP como regra.
 
 ## Papel
-MS **interno** (porta `8087`). Dono do conteúdo: Guru → Course → Module / Subject → Video → Link. Sem auth HTTP. Dono da tabela de guru (não tem MS guru).
+MS **interno** (porta `8087`). Dono do conteúdo: Guru → Training → Module / Subject → Video → Link. Sem auth HTTP. Dono da tabela de guru (não tem MS guru). Repo git permanece `digitus-forum-course-microservice`.
 
 ## REGRA
-- REGRA-OWN-1: Course tem `userId` (quem **cadastrou**, equipe). **Não** é o guru. retrieveById/delete só do dono (código após PR #5).
-- REGRA-OWN-2: Module/Subject/Video carregam `userId` (e courseId quando couber). Video/Course também têm `perfilId`.
-- REGRA-TREE-1: Module pertence a um Course. Subject pertence a um Course. Video liga-se a Module via `ModuleVideo` (position) e/ou a Subject via `SubjectVideo`.
+- REGRA-OWN-1: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-OWN-1.
+- REGRA-TRAINING-OWN-1: Training tem `userId` (quem **cadastrou**, equipe). **Não** é o guru. retrieveById/delete só do dono (código após PR #5).
+- REGRA-OWN-2: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-OWN-2.
+- REGRA-TRAINING-OWN-2: Module/Subject/Video carregam `userId` (e trainingId quando couber). Video/Training também têm `perfilId`.
+- REGRA-TREE-1: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-TREE-1.
+- REGRA-TRAINING-TREE-1: Module pertence a um Training. Subject pertence a um Training. Video liga-se a Module via `ModuleVideo` (position) e/ou a Subject via `SubjectVideo`.
 - REGRA-LINK-1: Link pertence a um Video (`videoId`, `name`, `url`, `position`).
-- REGRA-DEL-1: Course/Subject/Video têm flag `deleted` nas **leituras**. O CONTRATO `delete` de Course/Module/Video/Link hoje é **hard delete** (não flip da flag). Module/Link/joins não têm `deleted`.
+- REGRA-DEL-1: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-DEL-1.
+- REGRA-TRAINING-DEL-1: Training/Subject/Video têm flag `deleted` nas **leituras**. O CONTRATO `delete` de Training/Module/Video/Link hoje é **hard delete** (não flip da flag). Module/Link/joins não têm `deleted`.
 - REGRA-ID-1: ids UUID.
-- REGRA-GURU-1: Course tem `guruId`. Course sem guru **não existe**.
+- REGRA-GURU-1: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-1.
+- REGRA-TRAINING-GURU-1: Training tem `guruId`. Training sem guru **não existe**.
 - REGRA-GURU-2: lançamento só o guru `slug=java`. Este front é a vitrine (um front para todos os gurus depois).
 - REGRA-GURU-3: um domínio, um front. Guru **não** ganha site próprio.
-- REGRA-GURU-USER: aluno é **global** (vive no user MS). Um `userId` estuda com vários gurus. Course/Guru **não** donos do aluno.
-- REGRA-GURU-4: cada guru tem cursos; cada curso é grátis ou pago (`DADOS-COURSE.paid`).
+- REGRA-GURU-USER: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-USER.
+- REGRA-TRAINING-GURU-USER: aluno é **global** (vive no user MS). Um `userId` estuda com vários gurus. Training/Guru **não** donos do aluno.
+- REGRA-GURU-4: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-4.
+- REGRA-TRAINING-GURU-4: cada guru tem treinamentos; cada treinamento é grátis ou pago (`DADOS-TRAINING.paid`).
 
 ## NÃO
 - NÃO-EXPOSE
 - NÃO-SHUTDOWN
-- NÃO-I18: texto de UI e variação pt/en **não** vivem aqui (vão pro i18n). Course não duplica por idioma. Nome visível do guru = i18n, não coluna de display.
-- NÃO-LOCALE: Course **não** tem `locale` nem `familyId`.
+- NÃO-I18: texto de UI e variação pt/en **não** vivem aqui (vão pro i18n). Training não duplica por idioma. Nome visível do guru = i18n, não coluna de display.
+- NÃO-LOCALE: Training **não** tem `locale` nem `familyId`.
 - NÃO-YOUTUBE: `url` e `thumbnail` em Video são legado (YouTube). **Remover.** Aula = `gif` (+ áudio).
-- NÃO-BACKOFFICE: sem create/update público de guru; sem UI admin agora. Sistema **aceita** gurus (tabela + `guruId` no Course). Operadores inserem; produto não expõe CRUD de guru na borda.
+- NÃO-BACKOFFICE: sem create/update público de guru; sem UI admin agora. Sistema **aceita** gurus (tabela + `guruId` no Training). Operadores inserem; produto não expõe CRUD de guru na borda.
 - NÃO-GURU-HOST: sem host por guru.
 
 ## DADOS
 | id | tabela | campos |
 |---|---|---|
 | DADOS-GURU | Guru | guruId, slug (`java` no lançamento), deleted. Nome visível = i18n. |
-| DADOS-COURSE | Course | courseId, guruId, userId (equipe), perfilId, name, sinopse, description, paid (false = gratuito), deleted |
-| DADOS-MOD | Module | moduleId, courseId, userId, name, sinopse, number, newNumber, description |
-| DADOS-SUB | Subject | subjectId, courseId, userId, name, sinopse, description, deleted |
+| DADOS-COURSE | Course | **revogado** (2026-08-28). Entidade vira Training. Ver DADOS-TRAINING. Migração SQL: Ricardo. |
+| DADOS-TRAINING | Training | trainingId, guruId, userId (equipe), perfilId, name, sinopse, description, paid (false = gratuito), deleted. JPA `@Table(name = "training")`. |
+| DADOS-MOD | Module | moduleId, trainingId, userId, name, sinopse, number, newNumber, description |
+| DADOS-SUB | Subject | subjectId, trainingId, userId, name, sinopse, description, deleted |
 | DADOS-VID | Video | videoId, userId, perfilId, name, sinopse, description, gif, deleted. **Não** url/thumbnail. Áudio: GAP-AUDIO. |
-| DADOS-MV | ModuleVideo | moduleVideoId, moduleId, videoId, courseId, userId, position |
-| DADOS-SV | SubjectVideo | subjectVideoId, subjectId, videoId, courseId, position |
+| DADOS-MV | ModuleVideo | moduleVideoId, moduleId, videoId, trainingId, userId, position |
+| DADOS-SV | SubjectVideo | subjectVideoId, subjectId, videoId, trainingId, position |
 | DADOS-LINK | Link | linkId, videoId, name, url, position |
 
 Não está em DADOS (e **não vai estar**): `familyId`, `locale`, `url` de YouTube, `thumbnail`, `password`. Chave de mídia: `buckets/digitus-forum-media/videos/{videoId}.gif`.
 
 ## CONTRATO
-Course: `/course/v1/create` (exige `guruId`) `retrieveModulesWithVideosByCourseId` `retrieveModulesByCourseId` `retrieveById` `retrieveSubjectsByCourseId` `retrieveAll` (**top 9**, não lista completa) `retrieveByPerfil` `delete` (**hard**). **Não há** `/course/v1/update`.
-Module: `/module/v1/create` `retrieveById` `retrieveByCourseId` `retrieveByCourseIdWithVideos` `update` `delete` `addVideo` `reorder` `removeVideo`
-Subject: `/subject/v1/create` `retrieveByCourseId` `retrieveByIdWithVideos` `retrieveByVideo` `update` `addVideo` `removeVideo`
+**Revogado** (2026-08-28): prefixo `/course/v1` e `retrieve*ByCourseId*`. Equivalente Training abaixo.
+Training: `/training/v1/create` (exige `guruId`) `retrieveModulesWithVideosByTrainingId` `retrieveModulesByTrainingId` `retrieveById` `retrieveSubjectsByTrainingId` `retrieveAll` (**top 9**, não lista completa) `retrieveByPerfil` `delete` (**hard**). JSON: `trainingId` (não `courseId`). **Não há** `/training/v1/update`.
+Module: `/module/v1/create` `retrieveById` `retrieveByTrainingId` `retrieveByTrainingIdWithVideos` `update` `delete` `addVideo` `reorder` `removeVideo`
+Subject: `/subject/v1/create` `retrieveByTrainingId` `retrieveByIdWithVideos` `retrieveByVideo` `update` `addVideo` `removeVideo`
 Video: `/video/v1/create` `retrieveById` `retrieveBySubjectId` `update` `delete`
 Link: `/link/v1/create` `retrieveByVideoId` `update` `delete`
-Health: `/course/v1/healthCheck`
+Health: `/training/v1/healthCheck`
 
-Não existe: `retrieveByLocale`, `retrieveByTrainingIdWithVideos`. CRUD público de Guru **não** existe (NÃO-BACKOFFICE). Sem `retrieveByGuruId` no lançamento (só `java`; GAP-GURU-NAV no front).
+Não existe: `retrieveByLocale`. `retrieveByTrainingIdWithVideos` é o equivalente do antigo `retrieveByCourseIdWithVideos`. CRUD público de Guru **não** existe (NÃO-BACKOFFICE). Sem `retrieveByGuruId` no lançamento (só `java`; GAP-GURU-NAV no front).
 
 ## GAP
-- GAP-LOCALE: **revogado** (2026-08-28). Idioma = i18n, não familyId no Course.
+- GAP-LOCALE: **revogado** (2026-08-28). Idioma = i18n, não familyId no Training.
 - GAP-GIF: **revogado** (2026-08-28). Campo `gif`. url/thumbnail saem.
 - GAP-GURU-USER: **revogado** (2026-08-28). Aluno global.
 - GAP-GURU-HOST: **revogado** (2026-08-28). Um domínio, um front.
 - GAP-PERFIL-CHECK: `RequestService.checkIfThisPerfilBelongsToThisUser` sempre `false`; `retrieveByPerfil`/`delete` ignoram. Spec: consultar `perfil/v1/{id}/belongToUser/{userId}` e recusar se não pertencer.
-- GAP-OWNER: dono (`Course.userId`) vale em retrieveById/delete/create de módulo/assunto. Retrieve/update de filho ainda não está fechado se deve checar dono.
+- GAP-OWNER: dono (`Training.userId`) vale em retrieveById/delete/create de módulo/assunto. Retrieve/update de filho ainda não está fechado se deve checar dono.
 - GAP-AUDIO: arquivo de áudio da aula (coluna vs convenção de path).
-- GAP-COMPRA: matrícula (user comprou courseId) **não** vive aqui ainda.
+- GAP-COMPRA: matrícula (user comprou trainingId) **não** vive aqui ainda.

@@ -31,9 +31,9 @@ platform
 
 accessible on www.eusouprogramadorjunior.com
 
-# Course
+# Training
 
-The course microservice is built to be handle requests related to courses, modules, subjects and videos
+The training microservice is built to handle requests related to trainings, modules, subjects and videos
 
 Its intended to be used internaly by others microservices, not to be exposed on internet, thats why the requests are not authenticated
 
@@ -46,8 +46,8 @@ Its intended to be used internaly by others microservices, not to be exposed on 
 
 ## Microservices ecosystem
 
-Course is one of the following plataform microservices
- - [Course](https://github.com/RicardoCampinas/digitus-forum-course-microservice)
+Training is one of the following plataform microservices
+ - [Training](https://github.com/RicardoCampinas/digitus-forum-course-microservice)
  - [Firewall](https://github.com/RicardoCampinas/digitus-forum-firewall-microservice)
  - [Internationalization](https://github.com/RicardoCampinas/digitus-forum-internationalization-microservice)
  - [Login](https://github.com/RicardoCampinas/digitus-forum-login-microservice)

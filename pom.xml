@@ -11,8 +11,8 @@
 	<groupId>com.digitusforum</groupId>
 	<artifactId>course</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>course</name>
-	<description>courses´s microservice for digitusforum.com</description>
+	<name>training</name>
+	<description>training´s microservice for digitusforum.com</description>
 	<properties>
 		<java.version>11</java.version>
 	</properties>

@@ -35,14 +35,14 @@ public class ModuleController {
 		return moduleService.retrieveById(moduleVO);
 	}
 
-	@RequestMapping(value = "/module/v1/retrieveByCourseId")
-	public List<ModuleVO> retrieveByCourseId(@RequestBody ModuleVO moduleVO) {
-		return moduleService.retrieveByCourseId(moduleVO);
+	@RequestMapping(value = "/module/v1/retrieveByTrainingId")
+	public List<ModuleVO> retrieveByTrainingId(@RequestBody ModuleVO moduleVO) {
+		return moduleService.retrieveByTrainingId(moduleVO);
 	}
 
-	@RequestMapping(value = "/module/v1/retrieveByCourseIdWithVideos")
-	public List<ModuleVO> retrieveByCourseWithVideos(@RequestBody ModuleVO moduleVO) {
-		return moduleService.retrieveByCourseWithVideos(moduleVO);
+	@RequestMapping(value = "/module/v1/retrieveByTrainingIdWithVideos")
+	public List<ModuleVO> retrieveByTrainingWithVideos(@RequestBody ModuleVO moduleVO) {
+		return moduleService.retrieveByTrainingWithVideos(moduleVO);
 	}
 
 	@RequestMapping(value = "/module/v1/update")

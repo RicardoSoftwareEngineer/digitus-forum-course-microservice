@@ -6,9 +6,9 @@ import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 
 public interface SubjectRepository extends CrudRepository<SubjectEntity, String> {
-	List<SubjectEntity> findByCourseIdAndDeletedIsFalse(String perfilId);
+	List<SubjectEntity> findByTrainingIdAndDeletedIsFalse(String perfilId);
 
-	SubjectEntity findByUserIdAndCourseIdAndNameAndDeletedIsFalse(String userId, String courseId, String name);
+	SubjectEntity findByUserIdAndTrainingIdAndNameAndDeletedIsFalse(String userId, String trainingId, String name);
 
 	SubjectEntity findBySubjectIdAndDeletedIsFalse(String subjectId);
 	

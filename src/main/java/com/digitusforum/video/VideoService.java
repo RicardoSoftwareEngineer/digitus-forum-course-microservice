@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseRepository;
+import com.digitusforum.training.TrainingRepository;
 import com.digitusforum.link.LinkEntity;
 import com.digitusforum.link.LinkRepository;
 import com.digitusforum.link.LinkVO;
@@ -90,18 +90,18 @@ public class VideoService {
 	}
 
 	@Autowired
-	CourseRepository courseRepository;
+	TrainingRepository trainingRepository;
 
 	private VideoVO getPreviousAndNextVideo(VideoVO videoVO) {
-		String courseId = moduleVideoRepository.findByModuleIdAndVideoId(videoVO.getModuleId(), videoVO.getVideoId())
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND)).getCourseId();
+		String trainingId = moduleVideoRepository.findByModuleIdAndVideoId(videoVO.getModuleId(), videoVO.getVideoId())
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND)).getTrainingId();
 
-		List<ModuleEntity> moduleEntities = moduleRepository.findByCourseIdOrderByNumber(courseId);
+		List<ModuleEntity> moduleEntities = moduleRepository.findByTrainingIdOrderByNumber(trainingId);
 		List<ModuleVO> modules = new ArrayList<>();
 		for (ModuleEntity moduleEntity : moduleEntities)
 			modules.add(new ModelMapper().map(moduleEntity, ModuleVO.class));
 
-		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByCourseIdOrderByPositionAsc(courseId);
+		List<ModuleVideoEntity> moduleVideoEntities = moduleVideoRepository.findByTrainingIdOrderByPositionAsc(trainingId);
 		List<VideoVO> videos = new ArrayList<>();
 		for (ModuleVideoEntity moduleVideoEntity : moduleVideoEntities) {
 			VideoEntity videoEntity = videoRepository.findById(moduleVideoEntity.getVideoId()).get();
