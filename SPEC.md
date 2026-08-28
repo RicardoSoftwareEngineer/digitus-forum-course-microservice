@@ -73,7 +73,7 @@ Video: `/video/v1/create` `retrieveById` `retrieveBySubjectId` `update` `delete`
 Link: `/link/v1/create` `retrieveByVideoId` `update` `delete`
 Health: `/training/v1/healthCheck`
 
-GuruPage (interno, leitura): listar por `guruId` (público na borda). Sem create/update público (NÃO-BACKOFFICE).
+GuruPage (interno, leitura): `/guruPage/v1/retrieveByGuruId` body `{guruId}` (público na borda). Sem create/update público (NÃO-BACKOFFICE).
 Não existe: `retrieveByLocale`. `retrieveByTrainingIdWithVideos` é o equivalente do antigo `retrieveByCourseIdWithVideos`. CRUD público de Guru **não** existe (NÃO-BACKOFFICE). Sem `retrieveByGuruId` no lançamento (só `java`; GAP-GURU-NAV no front).
 
 ## GAP
