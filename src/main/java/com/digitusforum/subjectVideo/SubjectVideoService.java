@@ -10,8 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseRepository;
-import com.digitusforum.course.CourseService;
+import com.digitusforum.training.TrainingRepository;
+import com.digitusforum.training.TrainingService;
 import com.digitusforum.module.ModuleRepository;
 import com.digitusforum.module.ModuleService;
 import com.digitusforum.module.ModuleVO;
@@ -34,11 +34,11 @@ public class SubjectVideoService {
 	@Autowired
 	VideoRepository videoRepository;
 	@Autowired
-	CourseRepository courseRepository;
+	TrainingRepository trainingRepository;
 	@Autowired
 	SubjectRepository subjectRepository;
 	@Autowired
-	CourseService courseService;
+	TrainingService trainingService;
 	@Autowired
 	ModuleService moduleService;
 	@Autowired
@@ -120,17 +120,17 @@ public class SubjectVideoService {
 	public SubjectVideoVO addVideoToSubject(SubjectVideoVO subjectVideoVO) {
 		if (StringUtils.isBlank(subjectVideoVO.getUserId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_VIDEO_MISSING_USER_ID);
-		if (StringUtils.isBlank(subjectVideoVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(subjectVideoVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_TRAINING_ID);
 		if (StringUtils.isBlank(subjectVideoVO.getVideoId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_VIDEO_MISSING_VIDEO_ID);
 		if (StringUtils.isBlank(subjectVideoVO.getSubjectId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.SUBJECT_VIDEO_MISSING_SUBJECT_ID);
 		
-		courseRepository.findByUserIdAndCourseIdAndDeletedIsFalse(
+		trainingRepository.findByUserIdAndTrainingIdAndDeletedIsFalse(
 				subjectVideoVO.getUserId(),
-				subjectVideoVO.getCourseId())
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.COURSE_NOT_FOUND));
+				subjectVideoVO.getTrainingId())
+			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.TRAINING_NOT_FOUND));
 		
 		videoRepository.findByUserIdAndVideoIdAndDeletedIsFalse(subjectVideoVO.getUserId(), subjectVideoVO.getVideoId())
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));

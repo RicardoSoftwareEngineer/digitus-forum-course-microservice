@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseRepository;
+import com.digitusforum.training.TrainingRepository;
 import com.digitusforum.module.ModuleEntity;
 import com.digitusforum.module.ModuleRepository;
 import com.digitusforum.module.ModuleVO;

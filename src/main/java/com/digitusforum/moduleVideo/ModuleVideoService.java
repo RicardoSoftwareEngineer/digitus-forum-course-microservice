@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.digitusforum.course.CourseRepository;
-import com.digitusforum.course.CourseService;
+import com.digitusforum.training.TrainingRepository;
+import com.digitusforum.training.TrainingService;
 import com.digitusforum.module.ModuleRepository;
 import com.digitusforum.module.ModuleService;
 import com.digitusforum.module.ModuleVO;
@@ -30,11 +30,11 @@ public class ModuleVideoService {
 	@Autowired
 	VideoRepository videoRepository;
 	@Autowired
-	CourseRepository courseRepository;
+	TrainingRepository trainingRepository;
 	@Autowired
 	SubjectRepository subjectRepository;
 	@Autowired
-	CourseService courseService;
+	TrainingService trainingService;
 	@Autowired
 	ModuleService moduleService;
 	@Autowired
@@ -116,17 +116,17 @@ public class ModuleVideoService {
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_VIDEO_ID);
 		if (StringUtils.isBlank(moduleVideoVO.getModuleId()))
 			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_MODULE_ID);
-		if (StringUtils.isBlank(moduleVideoVO.getCourseId()))
-			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_COURSE_ID);
+		if (StringUtils.isBlank(moduleVideoVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.MODULE_VIDEO_MISSING_TRAINING_ID);
 
 		//moduleService.checkIfThisModuleBelongToThisUser(moduleVideoVO.getModuleId(), moduleVideoVO.getUserId());
 		//videoService.checkIfThisVideoBelongToThisUser(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());
-		//TODO $$$ checkIfThisModuleBelongsToThisCourse
+		//TODO $$$ checkIfThisModuleBelongsToThisTraining
 
 		videoRepository.findByUserIdAndVideoIdAndDeletedIsFalse(moduleVideoVO.getVideoId(), moduleVideoVO.getUserId())
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.VIDEO_NOT_FOUND));
 		
-		moduleRepository.findByModuleIdAndCourseId(moduleVideoVO.getModuleId(), moduleVideoVO.getCourseId())
+		moduleRepository.findByModuleIdAndTrainingId(moduleVideoVO.getModuleId(), moduleVideoVO.getTrainingId())
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, M.MODULE_NOT_FOUND));
 		
 		ModuleVideoEntity moduleVideoEntity = moduleVideoRepository.findByModuleIdAndVideoIdAndUserId(moduleVideoVO.getModuleId(), moduleVideoVO.getVideoId(), moduleVideoVO.getUserId());

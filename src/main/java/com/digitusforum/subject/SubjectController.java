@@ -23,9 +23,9 @@ public class SubjectController {
 		return subjectService.create(subjectVO);
 	}
 
-	@RequestMapping(value = "/subject/v1/retrieveByCourseId")
-	public List<SubjectVO> retrieveByCourseId(@RequestBody SubjectVO subjectVO) {
-		return subjectService.retrieveByCourseId(subjectVO);
+	@RequestMapping(value = "/subject/v1/retrieveByTrainingId")
+	public List<SubjectVO> retrieveByTrainingId(@RequestBody SubjectVO subjectVO) {
+		return subjectService.retrieveByTrainingId(subjectVO);
 	}
 
 	@RequestMapping(value = "/subject/v1/retrieveByIdWithVideos")

@@ -16,7 +16,7 @@ public class ModuleVideoEntity {
 	private String moduleVideoId;
 	private String moduleId;
 	private String videoId;
-	private String courseId;
+	private String trainingId;
 	private String userId;
 	private int position;
 
@@ -28,12 +28,12 @@ public class ModuleVideoEntity {
 		this.userId = userId;
 	}
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public String getModuleVideoId() {

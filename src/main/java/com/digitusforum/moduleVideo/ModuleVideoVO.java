@@ -5,16 +5,16 @@ public class ModuleVideoVO {
 	private String userId;
 	private String moduleId;
 	private String videoId;
-	private String courseId;
+	private String trainingId;
 	private int position;
 	private int newPosition;
 
-	public String getCourseId() {
-		return courseId;
+	public String getTrainingId() {
+		return trainingId;
 	}
 
-	public void setCourseId(String courseId) {
-		this.courseId = courseId;
+	public void setTrainingId(String trainingId) {
+		this.trainingId = trainingId;
 	}
 
 	public String getModuleVideoId() {

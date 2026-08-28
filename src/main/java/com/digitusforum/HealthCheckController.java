@@ -10,10 +10,10 @@ public class HealthCheckController {
 	
 	@RequestMapping("/test")
 	public String test() {
-		return "course";
+		return "training";
 	}
 
-	@RequestMapping(value = "/course/v1/healthCheck")
+	@RequestMapping(value = "/training/v1/healthCheck")
 	public ResponseEntity<String> healthCheck() {
 		return ResponseEntity.status(HttpStatus.OK).body("ok");
 	}
