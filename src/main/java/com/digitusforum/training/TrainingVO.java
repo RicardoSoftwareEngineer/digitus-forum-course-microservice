@@ -10,11 +10,14 @@ import com.digitusforum.subject.SubjectVO;
 
 public class TrainingVO {
 	private String trainingId;
+	private String guruId;
 	private String userId;
 	private String perfilId;
 	private String name;
 	private String sinopse;
 	private String description;
+	private boolean paid;
+	private Integer price;
 	private boolean deleted;
 	private List<SubjectVO> subjects = new ArrayList<>();
 	private List<ModuleVO> modules = new ArrayList<>();
@@ -43,6 +46,14 @@ public class TrainingVO {
 
 	public void setTrainingId(String trainingId) {
 		this.trainingId = trainingId;
+	}
+
+	public String getGuruId() {
+		return guruId;
+	}
+
+	public void setGuruId(String guruId) {
+		this.guruId = guruId;
 	}
 
 	public String getUserId() {
@@ -83,6 +94,22 @@ public class TrainingVO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+
+	public Integer getPrice() {
+		return price;
+	}
+
+	public void setPrice(Integer price) {
+		this.price = price;
 	}
 
 	public boolean isDeleted() {
