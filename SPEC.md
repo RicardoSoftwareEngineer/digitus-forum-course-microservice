@@ -21,7 +21,7 @@ MS **interno** (porta `8087`). Dono do conteúdo: Course → Module / Subject �
 - INV-OWN-2: Module/Subject/Video carregam `userId` (e courseId quando couber). Video/Course também têm `perfilId`.
 - INV-TREE-1: Module pertence a um Course. Subject pertence a um Course. Video liga-se a Module via `ModuleVideo` (position) e/ou a Subject via `SubjectVideo`.
 - INV-LINK-1: Link pertence a um Video (`videoId`, `name`, `url`, `position`).
-- INV-DEL-1: Course/Subject/Video têm `deleted`.
+- INV-DEL-1: Course/Subject/Video têm flag `deleted` nas **leituras**. O END `delete` de Course/Module/Video/Link hoje é **hard delete** (não flip da flag). Module/Link/joins não têm `deleted`.
 - INV-ID-1: ids UUID.
 
 ## NÃO
@@ -44,7 +44,7 @@ MS **interno** (porta `8087`). Dono do conteúdo: Course → Module / Subject �
 Não está em DADOS (front usa, DB não tem): `familyId`, `locale`, `gif`, `trainingId`.
 
 ## END
-Course: `/course/v1/create` `retrieveModulesWithVideosByCourseId` `retrieveModulesByCourseId` `retrieveById` `retrieveSubjectsByCourseId` `retrieveAll` `retrieveByPerfil` `delete`
+Course: `/course/v1/create` `retrieveModulesWithVideosByCourseId` `retrieveModulesByCourseId` `retrieveById` `retrieveSubjectsByCourseId` `retrieveAll` (**top 9**, não lista completa) `retrieveByPerfil` `delete` (**hard**). **Não há** `/course/v1/update`.
 Module: `/module/v1/create` `retrieveById` `retrieveByCourseId` `retrieveByCourseIdWithVideos` `update` `delete` `addVideo` `reorder` `removeVideo`
 Subject: `/subject/v1/create` `retrieveByCourseId` `retrieveByIdWithVideos` `retrieveByVideo` `update` `addVideo` `removeVideo`
 Video: `/video/v1/create` `retrieveById` `retrieveBySubjectId` `update` `delete`
@@ -57,3 +57,4 @@ Não existe: `retrieveByLocale`, `retrieveByTrainingIdWithVideos`.
 - GAP-LOCALE: front pede curso por locale/familyId. Spec de produto: curso é por idioma (N linhas) ou i18 cobre os textos?
 - GAP-PERFIL-CHECK: `RequestService.checkIfThisPerfilBelongsToThisUser` sempre `false`; `retrieveByPerfil`/`delete` ignoram. Spec: deve consultar `perfil/v1/{id}/belongToUser/{userId}` e recusar se não pertencer.
 - GAP-GIF: mídia da vitrine é `buckets/digitus-forum-media/videos/{id}.gif`. Isso é o campo `url`, `thumbnail`, ou um campo novo `gif`? Sem GAP fechado, **não adicionar coluna**.
+- GAP-OWNER: dono (`Course.userId`) vale em retrieveById/delete/create de módulo/assunto. A maior parte de retrieve/update de filho **não** checa dono — spec de produto ainda não diz se isso é regra ou buraco.
