@@ -1,7 +1,7 @@
 <!-- para IA. não é README de humano. -->
 # SPEC — training
 
-status: v0.5
+status: v0.6
 sha: `3a35170`
 data: 2026-08-28
 
@@ -34,7 +34,7 @@ MS **interno** (porta `8087`). Dono do conteúdo: Guru → Training → Module /
 - REGRA-GURU-USER: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-USER.
 - REGRA-TRAINING-GURU-USER: aluno é **global** (vive no user MS). Um `userId` estuda com vários gurus. Training/Guru **não** donos do aluno.
 - REGRA-GURU-4: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-4.
-- REGRA-TRAINING-GURU-4: cada guru tem treinamentos; cada treinamento é grátis ou pago (`DADOS-TRAINING.paid`).
+- REGRA-TRAINING-GURU-4: cada guru tem treinamentos; cada treinamento é grátis ou pago (`DADOS-TRAINING.paid` + `price`). Gratuito = paid=false AND price=0.
 - REGRA-MVP1-GURU-SHOW: sistema aceita N gurus; MVP1 **mostra** só `java`.
 - REGRA-GURU-PAGE-1: menu esquerdo do guru = DADOS-GURU-PAGE ordenado por `position`. Arquivo estático noutro host.
 - REGRA-AUDIO-1: áudio da aula no path `{videoId}.m4a`; front baixa inteiro.
@@ -54,7 +54,7 @@ MS **interno** (porta `8087`). Dono do conteúdo: Guru → Training → Module /
 | DADOS-GURU | Guru | guruId, slug (`java` no lançamento), deleted. Nome visível = i18n. |
 | DADOS-GURU-PAGE | GuruPage | guruPageId, guruId, titleKey (i18n), src (path HTML estático), position, deleted. HTML **não** no banco. |
 | DADOS-COURSE | Course | **revogado** (2026-08-28). Entidade vira Training. Ver DADOS-TRAINING. Migração SQL: Ricardo. |
-| DADOS-TRAINING | Training | trainingId, guruId, userId (equipe), perfilId, name, sinopse, description, paid (false = gratuito), deleted. JPA `@Table(name = "training")`. |
+| DADOS-TRAINING | Training | trainingId, guruId (string, MVP1=`java`), userId (equipe), perfilId, name, sinopse, description, paid (boolean), price (integer centavos BRL, avulso daquele training), deleted. Gratuito = paid=false AND price=0. Java Junior = gratuito. JPA `@Table(name = "training")`. |
 | DADOS-MOD | Module | moduleId, trainingId, userId, name, sinopse, number, newNumber, description |
 | DADOS-SUB | Subject | subjectId, trainingId, userId, name, sinopse, description, deleted |
 | DADOS-VID | Video | videoId, userId, perfilId, name, sinopse, description, gif, deleted. **Não** url/thumbnail. Áudio = `buckets/digitus-forum-media/videos/{videoId}.m4a` (arquivo inteiro no front). |

@@ -14,11 +14,14 @@ public class TrainingEntity {
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
 	private String trainingId;
+	private String guruId;
 	private String userId;
 	private String perfilId;
 	private String name;
 	private String sinopse;
 	private String description;
+	private boolean paid;
+	private Integer price;
 	private boolean deleted;
 
 	public String getUserId() {
@@ -35,6 +38,14 @@ public class TrainingEntity {
 
 	public void setTrainingId(String trainingId) {
 		this.trainingId = trainingId;
+	}
+
+	public String getGuruId() {
+		return guruId;
+	}
+
+	public void setGuruId(String guruId) {
+		this.guruId = guruId;
 	}
 
 	public String getPerfilId() {
@@ -67,6 +78,22 @@ public class TrainingEntity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public boolean isPaid() {
+		return paid;
+	}
+
+	public void setPaid(boolean paid) {
+		this.paid = paid;
+	}
+
+	public Integer getPrice() {
+		return price;
+	}
+
+	public void setPrice(Integer price) {
+		this.price = price;
 	}
 
 	public boolean isDeleted() {
