@@ -1,7 +1,7 @@
 <!-- para IA. não é README de humano. -->
 # SPEC — training
 
-status: v0.4
+status: v0.5
 sha: `3a35170`
 data: 2026-08-28
 
@@ -35,6 +35,9 @@ MS **interno** (porta `8087`). Dono do conteúdo: Guru → Training → Module /
 - REGRA-TRAINING-GURU-USER: aluno é **global** (vive no user MS). Um `userId` estuda com vários gurus. Training/Guru **não** donos do aluno.
 - REGRA-GURU-4: **revogado** (2026-08-28). Course vira Training. Ver REGRA-TRAINING-GURU-4.
 - REGRA-TRAINING-GURU-4: cada guru tem treinamentos; cada treinamento é grátis ou pago (`DADOS-TRAINING.paid`).
+- REGRA-MVP1-GURU-SHOW: sistema aceita N gurus; MVP1 **mostra** só `java`.
+- REGRA-GURU-PAGE-1: menu esquerdo do guru = DADOS-GURU-PAGE ordenado por `position`. Arquivo estático noutro host.
+- REGRA-AUDIO-1: áudio da aula no path `{videoId}.m4a`; front baixa inteiro.
 
 ## NÃO
 - NÃO-EXPOSE
@@ -49,16 +52,17 @@ MS **interno** (porta `8087`). Dono do conteúdo: Guru → Training → Module /
 | id | tabela | campos |
 |---|---|---|
 | DADOS-GURU | Guru | guruId, slug (`java` no lançamento), deleted. Nome visível = i18n. |
+| DADOS-GURU-PAGE | GuruPage | guruPageId, guruId, titleKey (i18n), src (path HTML estático), position, deleted. HTML **não** no banco. |
 | DADOS-COURSE | Course | **revogado** (2026-08-28). Entidade vira Training. Ver DADOS-TRAINING. Migração SQL: Ricardo. |
 | DADOS-TRAINING | Training | trainingId, guruId, userId (equipe), perfilId, name, sinopse, description, paid (false = gratuito), deleted. JPA `@Table(name = "training")`. |
 | DADOS-MOD | Module | moduleId, trainingId, userId, name, sinopse, number, newNumber, description |
 | DADOS-SUB | Subject | subjectId, trainingId, userId, name, sinopse, description, deleted |
-| DADOS-VID | Video | videoId, userId, perfilId, name, sinopse, description, gif, deleted. **Não** url/thumbnail. Áudio: GAP-AUDIO. |
+| DADOS-VID | Video | videoId, userId, perfilId, name, sinopse, description, gif, deleted. **Não** url/thumbnail. Áudio = `buckets/digitus-forum-media/videos/{videoId}.m4a` (arquivo inteiro no front). |
 | DADOS-MV | ModuleVideo | moduleVideoId, moduleId, videoId, trainingId, userId, position |
 | DADOS-SV | SubjectVideo | subjectVideoId, subjectId, videoId, trainingId, position |
 | DADOS-LINK | Link | linkId, videoId, name, url, position |
 
-Não está em DADOS (e **não vai estar**): `familyId`, `locale`, `url` de YouTube, `thumbnail`, `password`. Chave de mídia: `buckets/digitus-forum-media/videos/{videoId}.gif`.
+Não está em DADOS (e **não vai estar**): `familyId`, `locale`, `url` de YouTube, `thumbnail`, `password`, HTML de página de guru. Mídia: `videos/{videoId}.gif` + `videos/{videoId}.m4a`. Páginas: `gurus/{guruId}/{pageId}.html`.
 
 ## CONTRATO
 **Revogado** (2026-08-28): prefixo `/course/v1` e `retrieve*ByCourseId*`. Equivalente Training abaixo.
@@ -69,6 +73,7 @@ Video: `/video/v1/create` `retrieveById` `retrieveBySubjectId` `update` `delete`
 Link: `/link/v1/create` `retrieveByVideoId` `update` `delete`
 Health: `/training/v1/healthCheck`
 
+GuruPage (interno, leitura): listar por `guruId` (público na borda). Sem create/update público (NÃO-BACKOFFICE).
 Não existe: `retrieveByLocale`. `retrieveByTrainingIdWithVideos` é o equivalente do antigo `retrieveByCourseIdWithVideos`. CRUD público de Guru **não** existe (NÃO-BACKOFFICE). Sem `retrieveByGuruId` no lançamento (só `java`; GAP-GURU-NAV no front).
 
 ## GAP
@@ -78,5 +83,5 @@ Não existe: `retrieveByLocale`. `retrieveByTrainingIdWithVideos` é o equivalen
 - GAP-GURU-HOST: **revogado** (2026-08-28). Um domínio, um front.
 - GAP-PERFIL-CHECK: `RequestService.checkIfThisPerfilBelongsToThisUser` sempre `false`; `retrieveByPerfil`/`delete` ignoram. Spec: consultar `perfil/v1/{id}/belongToUser/{userId}` e recusar se não pertencer.
 - GAP-OWNER: dono (`Training.userId`) vale em retrieveById/delete/create de módulo/assunto. Retrieve/update de filho ainda não está fechado se deve checar dono.
-- GAP-AUDIO: arquivo de áudio da aula (coluna vs convenção de path).
-- GAP-COMPRA: matrícula (user comprou trainingId) **não** vive aqui ainda.
+- GAP-AUDIO: **revogado** (path fechado, `{videoId}.m4a`).
+- GAP-COMPRA: **revogado** (MVP1). Entitlement no user MS (DADOS-COMPRA / DADOS-ASSINATURA). Ver SPEC-MVP1.md no frontend.
