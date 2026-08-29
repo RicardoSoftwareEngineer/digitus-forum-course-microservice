@@ -125,6 +125,15 @@ public class TrainingService {
 		return trainingRepository.findByTrainingIdAndDeletedIsFalse(trainingVO.getTrainingId());
 	}
 
+	public TrainingEntity retrieveCatalogById(TrainingVO trainingVO) {
+		if (trainingVO == null || StringUtils.isBlank(trainingVO.getTrainingId()))
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, M.TRAINING_MISSING_ID);
+		TrainingEntity training = trainingRepository.findByTrainingIdAndDeletedIsFalse(trainingVO.getTrainingId());
+		if (training == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, M.TRAINING_NOT_FOUND);
+		return training;
+	}
+
 	public List<TrainingEntity> retrieveAll() {
 		return trainingRepository.findTop9ByDeletedIsFalse();
 	}

@@ -35,6 +35,11 @@ public class TrainingController {
 		return trainingService.retrieveById(trainingVO);
 	}
 
+	@RequestMapping(value = "/training/v1/retrieveCatalogById")
+	public TrainingEntity retrieveCatalogById(@RequestBody TrainingVO trainingVO) {
+		return trainingService.retrieveCatalogById(trainingVO);
+	}
+
 	@RequestMapping(value = "/training/v1/retrieveSubjectsByTrainingId")
 	public TrainingVO retrieveSubjectsByTrainingId(@RequestBody TrainingVO trainingVO) {
 		return trainingService.retrieveSubjectsByTrainingId(trainingVO);

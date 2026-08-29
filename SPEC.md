@@ -1,8 +1,8 @@
 <!-- para IA. não é README de humano. -->
 # SPEC — training
 
-status: v0.6
-sha: `3a35170`
+status: v0.7
+sha: `b5537db`
 data: 2026-08-28
 
 ## Como usar
@@ -66,7 +66,8 @@ Não está em DADOS (e **não vai estar**): `familyId`, `locale`, `url` de YouTu
 
 ## CONTRATO
 **Revogado** (2026-08-28): prefixo `/course/v1` e `retrieve*ByCourseId*`. Equivalente Training abaixo.
-Training: `/training/v1/create` (exige `guruId`) `retrieveModulesWithVideosByTrainingId` `retrieveModulesByTrainingId` `retrieveById` `retrieveSubjectsByTrainingId` `retrieveAll` (**top 9**, não lista completa) `retrieveByPerfil` `delete` (**hard**). JSON: `trainingId` (não `courseId`). **Não há** `/training/v1/update`.
+Training: `/training/v1/create` (exige `guruId`) `retrieveModulesWithVideosByTrainingId` `retrieveModulesByTrainingId` `retrieveById` `retrieveCatalogById` `retrieveSubjectsByTrainingId` `retrieveAll` (**top 9**, não lista completa) `retrieveByPerfil` `delete` (**hard**). JSON: `trainingId` (não `courseId`). **Não há** `/training/v1/update`.
+CONTRATO-TRAINING-CATALOG: `POST /training/v1/retrieveCatalogById` body `{trainingId}` — vitrine lê um training por id. Sem `userId`, sem check de dono. `deleted=false`. 404 `TRAINING_NOT_FOUND` se ausente. `retrieveById`/create/delete continuam dono (REGRA-TRAINING-OWN-1).
 Module: `/module/v1/create` `retrieveById` `retrieveByTrainingId` `retrieveByTrainingIdWithVideos` `update` `delete` `addVideo` `reorder` `removeVideo`
 Subject: `/subject/v1/create` `retrieveByTrainingId` `retrieveByIdWithVideos` `retrieveByVideo` `update` `addVideo` `removeVideo`
 Video: `/video/v1/create` `retrieveById` `retrieveBySubjectId` `update` `delete`
